@@ -1,0 +1,67 @@
+package kr.ac.wku.cephalometricai.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import kr.ac.wku.cephalometricai.dto.SessionDTO;
+import kr.ac.wku.cephalometricai.entity.Image;
+import kr.ac.wku.cephalometricai.entity.Member;
+import kr.ac.wku.cephalometricai.properties.SessionManager;
+import kr.ac.wku.cephalometricai.service.ImageService;
+import kr.ac.wku.cephalometricai.service.MemberService;
+import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
+
+@RestController
+@AllArgsConstructor
+public class FileController {
+
+    private final SessionManager sessionManager;
+    private final MemberService memberService;
+    private final ImageService imageService;
+
+    @PostMapping("/file/upload")
+    public ResponseEntity<Object> uploadFiles(MultipartFile[] files, SessionDTO sessionDTO){
+        try {
+            imageService.uploadFiles(files, sessionDTO);
+            return getImageList(sessionDTO);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/file/list")
+    public ResponseEntity<Object> getImageList(@RequestBody SessionDTO dto){
+        UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
+        if(memberId == null)
+            return ResponseEntity.status(401).body("Session Expired.");
+        Optional<Member> memberOptional = memberService.findById(memberId);
+        if(memberOptional.isEmpty())
+            return ResponseEntity.status(401).body("Unknown Account.");
+        return ResponseEntity.ok().body(imageService.getFiles(memberId));
+    }
+
+    @GetMapping("/files/{session}/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(HttpServletRequest request, @PathVariable String filename, @PathVariable String session) {
+        Optional<Image> imageOptional = imageService.findBySystemPath(filename);
+        if(imageOptional.isEmpty())
+            return ResponseEntity.notFound().build();
+        Resource file = imageService.loadAsResource(filename, UUID.fromString(session));
+        String userAgent = request.getHeader("User-Agent");
+        if(userAgent.contains("Trident"))
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + URLEncoder.encode(imageOptional.get().getOriginName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20") + "\"").body(file);
+        else
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + new String(imageOptional.get().getOriginName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"").body(file);
+    }
+}
