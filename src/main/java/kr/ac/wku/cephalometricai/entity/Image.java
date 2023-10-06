@@ -27,4 +27,13 @@ public class Image {
 
     @Column(nullable = false)
     private ProcessStatus status;
+
+    @Column
+    private String patient;
+
+    @Column
+    private String createAt;
+
+    @Column(nullable = false)
+    private String name;
 }

@@ -1,6 +1,7 @@
 package kr.ac.wku.cephalometricai.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.ac.wku.cephalometricai.dto.FileModifyDTO;
 import kr.ac.wku.cephalometricai.dto.SessionDTO;
 import kr.ac.wku.cephalometricai.entity.Image;
 import kr.ac.wku.cephalometricai.entity.Member;
@@ -48,6 +49,21 @@ public class FileController {
         if(memberOptional.isEmpty())
             return ResponseEntity.status(401).body("Unknown Account.");
         return ResponseEntity.ok().body(imageService.getFiles(memberId));
+    }
+
+    @PostMapping("/file/modify")
+    public ResponseEntity<Object> modifyImageData(@RequestBody FileModifyDTO dto){
+        UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
+        if(memberId == null) return ResponseEntity.status(401).body("Session Expired.");
+        Optional<Member> optionalMember = memberService.findById(memberId);
+        if(optionalMember.isEmpty()) return ResponseEntity.status(401).body("Unknown Account.");
+        Optional<Image> optionalImage = imageService.findById(dto.getId());
+        if(optionalImage.isEmpty()) return ResponseEntity.notFound().build();
+        Member member = optionalMember.get();
+        Image image = optionalImage.get();
+        if(!image.getOwner().equals(member.getId())) return ResponseEntity.status(403).body("Permission denied.");
+        imageService.modifyImageData(dto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/files/{session}/{filename:.+}")

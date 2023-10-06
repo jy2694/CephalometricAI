@@ -2,7 +2,7 @@ import { Container } from "react-bootstrap"
 
 export default (props) => {
     return <>
-        <Container className="w-100 h-100 d-flex align-item-center" style={{objectFit:"none"}}>
+        <Container className="d-flex align-item-center" style={{width:"73%", objectFit:"none"}}>
             <img width="100%"
             alt="Image not selected."
             src={props.img}

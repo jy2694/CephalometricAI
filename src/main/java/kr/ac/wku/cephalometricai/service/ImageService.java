@@ -1,5 +1,6 @@
 package kr.ac.wku.cephalometricai.service;
 
+import kr.ac.wku.cephalometricai.dto.FileModifyDTO;
 import kr.ac.wku.cephalometricai.dto.SessionDTO;
 import kr.ac.wku.cephalometricai.entity.Image;
 import kr.ac.wku.cephalometricai.entity.Member;
@@ -69,6 +70,7 @@ public class ImageService {
                     .originName(fileName)
                     .systemPath(systemPath)
                     .owner(member.getId())
+                    .name(fileName)
                     //TODO - STATUS CHECK NEEDED
                     .status(ProcessStatus.values()[random.nextInt(2)])
                     .build();
@@ -103,7 +105,21 @@ public class ImageService {
         return memberOptional.map(member -> loadAsResource(filename, member)).orElse(null);
     }
 
+    public Optional<Image> findById(Long id){
+        return imageRepository.findById(id);
+    }
+
     public Optional<Image> findBySystemPath(String systemPath){
         return imageRepository.findBySystemPath(systemPath);
+    }
+
+    public void modifyImageData(FileModifyDTO dto){
+        Optional<Image> imageOptional = findById(dto.getId());
+        if(imageOptional.isEmpty()) return;
+        Image image = imageOptional.get();
+        image.setName(dto.getName());
+        image.setPatient(dto.getPatient());
+        image.setCreateAt(dto.getDate());
+        imageRepository.save(image);
     }
 }

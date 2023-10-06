@@ -51,7 +51,12 @@ export default (props) => {
                                 className="mb-3" 
                                 type="password"
                                 value={PW}
-                                onChange={(e) => setPW(e.target.value)}/>
+                                onChange={(e) => setPW(e.target.value)}
+                                onKeyUp={(e) => {
+                                    if(e.key === 'Enter'){
+                                        onLogin(e);
+                                    }
+                                }}/>
                             <Container className="d-flex justify-content-center mb-3 mt-3">
                                 <Button 
                                     className={(buttonHover ? "bg-white text-black" : "bg-secondary text-white") + " w-50 border border-white"}
