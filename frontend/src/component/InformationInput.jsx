@@ -25,7 +25,6 @@ export default (props) => {
         setNameEnable(true);
         setDateEnable(true);
         setPatientEnable(true);
-        console.log(data["date"]);
         setName(data["name"] === undefined ? "" : data["name"]);
         setDate(data["date"] === undefined ? "" : data["date"]);
         setPatient(data["patient"] === undefined ? "" : data["patient"]);
@@ -47,7 +46,7 @@ export default (props) => {
             data:sendData,
             headers: {'Content-type': 'application/json'}
         }).then((res)=>{
-            alert("반영되었습니다.");
+            alert("The information has been reflected.");
             if(props.session === undefined) return;
               var sendData = JSON.stringify({
                   "sessionKey":props.session
@@ -62,7 +61,7 @@ export default (props) => {
               });
               
         }).catch(error=>{
-            alert("서버 오류입니다.")
+            alert("Internal Server Error.")
         });
     }
 

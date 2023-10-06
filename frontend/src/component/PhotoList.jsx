@@ -1,11 +1,13 @@
-import { Container, Form, ListGroup, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { Button, Container, Form, ListGroup, Modal, OverlayTrigger, Tooltip } from "react-bootstrap"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate, faCheck, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons"
+import { faArrowsRotate, faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons"
+import axios from "axios"
 
 export default (props) => {
 
-    const [hover, setHover] = useState(-1)
+    const [hover, setHover] = useState(-1);
+    const [delId, setDelId] = useState(-1);
     const [filter, setFilter] = useState("");
 
     const tooltip = (
@@ -13,30 +15,68 @@ export default (props) => {
           Artificial intelligence is processing.
         </Tooltip>
       );
+
+    const deleteTooltip = (
+        <Tooltip id="tooltip">
+          Click to delete.
+        </Tooltip>
+      );
+
+      const deleteImage = () => {
+        var sendData = JSON.stringify({
+            "sessionKey": props.session,
+            "imageId": props.data[delId]["id"]
+        });
+        axios({
+            method:"POST",
+            url: 'http://localhost:8080/file/delete',
+            data:sendData,
+            headers: {'Content-type': 'application/json'}
+        }).then((res)=>{
+            props.setImage(-1);
+            setDelId(-1);
+            props.setImageData(res.data);
+        }).catch(error=>{
+            setDelId(-1);
+            if(error.response.status == 401){
+                alert("Session Expired.");
+            } else if(error.response.status == 403){
+                alert("Permission Denied.");
+            }
+        });
+      }
     
 
     const listRenderer = () => {
         const result = [];
+        if(props.data.length <= 0){
+            return <span className="h5">Nothing has been uploaded.</span>
+        }
         for(let i = 0; i < props.data.length; i ++){
             const data = props.data[i];
+            if(filter !== ""){
+                if(((data["name"] !== undefined && data["name"] !== null && !data["name"].toLowerCase().includes(filter.toLowerCase())) || (data["name"] === undefined || data["name"] === null))
+                    && ((data["date"] !== undefined && data["date"] !== null && !data["date"].toLowerCase().includes(filter.toLowerCase())) || (data["date"] === undefined || data["date"] === null))
+                    && ((data["patient"] !== undefined && data["patient"] !== null && !data["patient"].toLowerCase().includes(filter.toLowerCase())) || (data["patient"] === undefined || data["patient"] === null))){
+                        continue;
+                    }
+            }
             let element = <ListGroup.Item 
             key={i}
             onClick={()=>props.setImage(i)}
             onMouseEnter={()=>setHover(i)}
             onMouseLeave={()=>setHover(-1)}
+            className="d-flex justify-content-between"
             variant={props.selected == i ? "primary" : (hover == i ? "secondary" : "none")}
-        >
+        ><Container>
             {data["name"]}
-            {data["status"] === "PROCESSING" && <FontAwesomeIcon className="ms-1" spin icon={faArrowsRotate} />}
+            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><FontAwesomeIcon className="ms-1" spin icon={faArrowsRotate} /></OverlayTrigger>}
             {data["status"] === "COMPLETED" && <FontAwesomeIcon className="ms-1" icon={faCheck} style={{color: "#00f900",}} />}
+        </Container>
+        <OverlayTrigger placement="left" overlay={deleteTooltip}><FontAwesomeIcon onClick={()=>setDelId(i)} className="ms-1" icon={faTrashCan} /></OverlayTrigger>
         </ListGroup.Item>;
-            if(data["status"] === "PROCESSING"){
-                result.push(<OverlayTrigger placement="top" overlay={tooltip}>
-                    {element}
-                </OverlayTrigger>)
-            } else{
-                result.push(element);
-            }
+         result.push(element);
+            
         }
         return result;
     }
@@ -51,5 +91,21 @@ export default (props) => {
                 {listRenderer()}
             </ListGroup>
         </Container>
+        <Modal show={delId >= 0 ? true : false} onHide={() => setDelId(-1)}>
+            <Modal.Header closeButton>
+            <Modal.Title>Image Delete</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>You are about to delete the {props.data[delId] !== undefined ? props.data[delId]["name"] : ""} image. Are you sure?</Modal.Body>
+            <Modal.Footer>
+            <Button variant="secondary" onClick={() => setDelId(-1)}>
+                Close
+            </Button>
+            <Button variant="danger" onClick={() => {
+                deleteImage();
+                }}>
+                Delete
+            </Button>
+            </Modal.Footer>
+        </Modal>
     </>
 }

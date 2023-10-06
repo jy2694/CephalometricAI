@@ -122,4 +122,13 @@ public class ImageService {
         image.setCreateAt(dto.getDate());
         imageRepository.save(image);
     }
+
+    public void deleteImage(Long id) throws IOException {
+        Optional<Image> imageOptional = imageRepository.findById(id);
+        if(imageOptional.isEmpty()) return;
+        Image image = imageOptional.get();
+        Path path = Paths.get(privateCloudProperties.getPath()+"/"+image.getOwner().toString()).resolve(image.getSystemPath());
+        Files.delete(path);
+        imageRepository.deleteById(id);
+    }
 }

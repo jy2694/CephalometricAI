@@ -19,9 +19,7 @@ export default (props) => {
     }
 
     useEffect(()=> {
-      if(timerEnable === undefined && props.session !== undefined){
-        setTimerEnable(setInterval(() => {
-              if(props.session === undefined) return;
+      if(props.session === undefined) return;
               var sendData = JSON.stringify({
                   "sessionKey":props.session
               });
@@ -33,11 +31,6 @@ export default (props) => {
               }).then((res)=>{
                   setImageData(res.data);
               });
-          }, 5000));
-      } else if(timerEnable !== undefined && props.session === undefined){
-        clearInterval(timerEnable);
-        setTimerEnable(undefined);
-      }
     }, [props.session]);
 
     return <>

@@ -1,6 +1,7 @@
 package kr.ac.wku.cephalometricai.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import kr.ac.wku.cephalometricai.dto.FileDeleteDTO;
 import kr.ac.wku.cephalometricai.dto.FileModifyDTO;
 import kr.ac.wku.cephalometricai.dto.SessionDTO;
 import kr.ac.wku.cephalometricai.entity.Image;
@@ -49,6 +50,27 @@ public class FileController {
         if(memberOptional.isEmpty())
             return ResponseEntity.status(401).body("Unknown Account.");
         return ResponseEntity.ok().body(imageService.getFiles(memberId));
+    }
+
+    @PostMapping("/file/delete")
+    public ResponseEntity<Object> deleteImage(@RequestBody FileDeleteDTO dto){
+        UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
+        if(memberId == null)
+            return ResponseEntity.status(401).body("Session Expired.");
+        Optional<Member> memberOptional = memberService.findById(memberId);
+        if(memberOptional.isEmpty())
+            return ResponseEntity.status(401).body("Unknown Account.");
+        Optional<Image> imageOptional = imageService.findById(dto.getImageId());
+        if(imageOptional.isEmpty())
+            return ResponseEntity.notFound().build();
+        Member member = memberOptional.get();
+        Image image = imageOptional.get();
+        if(!image.getOwner().equals(member.getId()))
+            return ResponseEntity.status(403).body("Permission Denied.");
+        try {
+            imageService.deleteImage(dto.getImageId());
+        } catch (IOException ignored) {}
+        return ResponseEntity.ok().body(imageService.getFiles(member.getId()));
     }
 
     @PostMapping("/file/modify")
