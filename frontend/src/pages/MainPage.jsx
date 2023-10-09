@@ -7,7 +7,7 @@ import NavigationBar from "../component/NavigationBar";
 
 export default (props) => {
     const [imageData, setImageData] = useState([]);
-    const [timerEnable, setTimerEnable] = useState();
+    const [timerFlag, setTimerFlag] = useState(false);
     const [select, setSelect] = useState(-1);
   
     const selectImageUrl = (number) => {
@@ -17,21 +17,39 @@ export default (props) => {
     const refreshImageData = (datas) => {
       setImageData(datas);
     }
-
-    useEffect(()=> {
+    
+    const postImageList = () => {
       if(props.session === undefined) return;
-              var sendData = JSON.stringify({
-                  "sessionKey":props.session
-              });
-              axios({
-                  method:"POST",
-                  url: 'http://localhost:8080/file/list',
-                  data:sendData,
-                  headers: {'Content-type': 'application/json'}
-              }).then((res)=>{
-                  setImageData(res.data);
-              });
+      console.log(props.session);
+      var sendData = JSON.stringify({
+          "sessionKey":props.session
+      });
+      axios({
+          method:"POST",
+          url: 'http://localhost:8080/file/list',
+          data:sendData,
+          headers: {'Content-type': 'application/json'}
+      }).then((res)=>{
+          setImageData(res.data);
+      }).catch((error)=>{
+        props.setSession(undefined);
+        alert("Session Expired.");
+      });
+    }
+    useEffect(()=> {
+      postImageList();
+      if(props.session !== undefined){
+        setTimerFlag(!timerFlag);
+      }
     }, [props.session]);
+
+    useEffect(()=>{
+      const timer = setInterval(() => {
+        postImageList();
+        setTimerFlag(!timerFlag);
+      }, 1000);
+      return () => clearInterval(timer);
+    }, [timerFlag]);
 
     return <>
     <NavigationBar session={props.session} setSession={props.setSession} setImageData={refreshImageData}/>

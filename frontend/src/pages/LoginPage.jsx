@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button, Card, Container, Form, Modal } from "react-bootstrap";
+import logo from '../logo.png';
 
 export default (props) => {
 
@@ -29,24 +30,28 @@ export default (props) => {
     }
 
     return <>
-        <Container className="d-flex justify-content-center align-items-center" style={{height:"100vh"}}>
+        <Container className="d-flex justify-content-center align-items-center" style={{height:"100vh", flexDirection:"column"}}>
+            <Container className="w-50 p-3 rounded d-flex justify-content-center align-items-center m-5">
+                <img src={logo} style={{width:"20%"}} className="me-5"></img>
+                <h1><strong>Cephalometric AI</strong></h1>
+            </Container>
             <Container
                 style={{width:"35%"}}>
                 <Card className="bg-dark text-white border border-white">
                     <Card.Header className="border-white">
-                        <h4>Sign In</h4>
+                        <h4><strong>Sign In</strong></h4>
                     </Card.Header>
                     <Card.Body>
                         <Container 
                         className="p-2 d-flex justify-content-start align-items-start"
                         style={{flexDirection:"column"}}>
-                            <p>ID : </p>
+                            <p><strong>ID : </strong></p>
                             <Form.Control 
                                 className="mb-3" 
                                 type="text"
                                 value={ID}
                                 onChange={(e) => setID(e.target.value)}/>
-                            <p>Password : </p>
+                            <p><strong>Password : </strong></p>
                             <Form.Control 
                                 className="mb-3" 
                                 type="password"
@@ -62,7 +67,7 @@ export default (props) => {
                                     className={(buttonHover ? "bg-white text-black" : "bg-secondary text-white") + " w-50 border border-white"}
                                     onMouseEnter={()=>setButtonHover(true)}
                                     onMouseLeave={()=>setButtonHover(false)}
-                                    onClick={onLogin}>Sign In</Button>
+                                    onClick={onLogin}><strong>Sign In</strong></Button>
                             </Container>
                             <Container className="d-flex justify-content-center">
                                 <p 

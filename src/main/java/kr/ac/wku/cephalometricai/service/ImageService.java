@@ -71,13 +71,16 @@ public class ImageService {
                     .systemPath(systemPath)
                     .owner(member.getId())
                     .name(fileName)
-                    //TODO - STATUS CHECK NEEDED
-                    .status(ProcessStatus.values()[random.nextInt(2)])
+                    .status(ProcessStatus.PROCESSING)
                     .build();
             imageRepository.save(image);
             uploaded.add(image);
         }
         return uploaded;
+    }
+
+    public void modifyImage(Image image){
+        imageRepository.save(image);
     }
 
     public List<Image> getFiles(UUID memberId){

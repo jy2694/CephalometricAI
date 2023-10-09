@@ -1,4 +1,4 @@
-import { Button, Container, Form, ListGroup, Modal, OverlayTrigger, Tooltip } from "react-bootstrap"
+import { Button, Container, Form, ListGroup, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowsRotate, faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons"
@@ -70,7 +70,7 @@ export default (props) => {
             variant={props.selected == i ? "primary" : (hover == i ? "secondary" : "none")}
         ><Container>
             {data["name"]}
-            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><FontAwesomeIcon className="ms-1" spin icon={faArrowsRotate} /></OverlayTrigger>}
+            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><Spinner className="ms-1" animation="grow" variant="success" size="sm" /></OverlayTrigger>}
             {data["status"] === "COMPLETED" && <FontAwesomeIcon className="ms-1" icon={faCheck} style={{color: "#00f900",}} />}
         </Container>
         <OverlayTrigger placement="left" overlay={deleteTooltip}><FontAwesomeIcon onClick={()=>setDelId(i)} className="ms-1" icon={faTrashCan} /></OverlayTrigger>
@@ -84,7 +84,7 @@ export default (props) => {
     return <>
         <Container className="border border-white rounded d-flex justify-content-start align-items-center w-100 h-50" style={{overflow:"auto", flexDirection:"column"}}>
             <Container className="w-100">
-                <span>Search</span>
+                <span><strong>Search</strong></span>
                 <Form.Control type="text" placeholder="Search by name." value={filter} onChange={(e)=>setFilter(e.target.value)}/>
             </Container>
             <ListGroup className="mt-3 mb-3 w-100">

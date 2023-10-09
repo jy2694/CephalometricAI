@@ -13,4 +13,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByOwner(UUID owner);
     Optional<Image> findBySystemPath(String systemPath);
 
+    Optional<Image> findBySystemPathContaining(String systemPath);
 }

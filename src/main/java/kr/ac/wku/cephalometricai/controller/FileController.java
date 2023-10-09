@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -93,13 +94,23 @@ public class FileController {
         Optional<Image> imageOptional = imageService.findBySystemPath(filename);
         if(imageOptional.isEmpty())
             return ResponseEntity.notFound().build();
+
+        Image image = imageOptional.get();
+        String extension = image.getOriginName().substring(image.getOriginName().indexOf('.'));
+        String fileName = image.getName();
+        if(image.getPatient() != null && !image.getPatient().isBlank())
+            fileName += "_" + image.getPatient();
+        if(image.getCreateAt() != null && !image.getCreateAt().isBlank())
+            fileName += "_" + image.getCreateAt();
+        fileName += extension;
+
         Resource file = imageService.loadAsResource(filename, UUID.fromString(session));
         String userAgent = request.getHeader("User-Agent");
         if(userAgent.contains("Trident"))
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + URLEncoder.encode(imageOptional.get().getOriginName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20") + "\"").body(file);
+                    "attachment; filename=\"" + URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20") + "\"").body(file);
         else
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + new String(imageOptional.get().getOriginName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"").body(file);
+                    "attachment; filename=\"" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1) + "\"").body(file);
     }
 }
