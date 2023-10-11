@@ -20,7 +20,6 @@ export default (props) => {
     
     const postImageList = () => {
       if(props.session === undefined) return;
-      console.log(props.session);
       var sendData = JSON.stringify({
           "sessionKey":props.session
       });
@@ -54,7 +53,7 @@ export default (props) => {
     return <>
     <NavigationBar session={props.session} setSession={props.setSession} setImageData={refreshImageData}/>
     <Container className="mw-100 d-flex mt-5 justify-content-center align-items-center" style={{height:"78.5vh"}}>
-      <ImageViewer img={select < 0 ? "" : "http://localhost:8080/files/"+props.session+"/"+imageData[select]["systemPath"]}/>
+      <ImageViewer img={select < 0 ? "" : "http://localhost:8080/files/"+props.session+"/"+imageData[select]["systemPath"]} session={props.session} selected={select} data={imageData}/>
       <Menu setImageData={refreshImageData} data={imageData} setImage={selectImageUrl} selected={select} session={props.session}/>
     </Container>
     </>;

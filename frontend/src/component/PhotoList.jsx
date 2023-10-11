@@ -1,7 +1,7 @@
 import { Button, Container, Form, ListGroup, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowsRotate, faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons"
+import { faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons"
 import axios from "axios"
 
 export default (props) => {
@@ -38,9 +38,9 @@ export default (props) => {
             props.setImageData(res.data);
         }).catch(error=>{
             setDelId(-1);
-            if(error.response.status == 401){
+            if(error.response.status === 401){
                 alert("Session Expired.");
-            } else if(error.response.status == 403){
+            } else if(error.response.status === 403){
                 alert("Permission Denied.");
             }
         });
@@ -67,10 +67,10 @@ export default (props) => {
             onMouseEnter={()=>setHover(i)}
             onMouseLeave={()=>setHover(-1)}
             className="d-flex justify-content-between"
-            variant={props.selected == i ? "primary" : (hover == i ? "secondary" : "none")}
+            variant={props.selected === i ? "primary" : (hover === i ? "secondary" : "none")}
         ><Container>
             {data["name"]}
-            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><Spinner className="ms-1" animation="grow" variant="success" size="sm" /></OverlayTrigger>}
+            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><Spinner className="ms-1" animation="border" variant="success" size="sm" /></OverlayTrigger>}
             {data["status"] === "COMPLETED" && <FontAwesomeIcon className="ms-1" icon={faCheck} style={{color: "#00f900",}} />}
         </Container>
         <OverlayTrigger placement="left" overlay={deleteTooltip}><FontAwesomeIcon onClick={()=>setDelId(i)} className="ms-1" icon={faTrashCan} /></OverlayTrigger>

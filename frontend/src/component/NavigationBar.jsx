@@ -6,15 +6,15 @@ export default (props) => {
 
   const [show, setShow] = useState(false);
   const [folderEnable, setFolderEnable] = useState(false);
-
-  const fileList = []; // 업로드한 파일들을 저장하는 배열
+  const [fileList, setFileList] = useState([]);
 
   const onSaveFiles = (e) => {
       const uploadFiles = Array.prototype.slice.call(e.target.files);
-
+      const files = [];
       uploadFiles.forEach((uploadFile) => {
-          fileList.push(uploadFile);
+        files.push(uploadFile);
       });
+      setFileList(files);
   };
 
   const onLogout = (e) => {
@@ -22,6 +22,7 @@ export default (props) => {
     var sendData = JSON.stringify({
         "sessionKey":props.session
     });
+    
     axios({
         method:"POST",
         url: 'http://localhost:8080/auth/logout',
@@ -39,7 +40,7 @@ export default (props) => {
       formData.append('files', file);
     });
     formData.append('sessionDTO',props.session);
-    console.log(formData);
+    setFileList([]);
     axios.post('http://localhost:8080/file/upload', formData)
     .then((res)=> {
       props.setImageData(res.data);
@@ -60,7 +61,6 @@ export default (props) => {
             setShow(true);
             setFolderEnable(true);
             }}>Import folder</Nav.Link>
-          <Nav.Link href="#link">Edit</Nav.Link>
         </Nav>
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>

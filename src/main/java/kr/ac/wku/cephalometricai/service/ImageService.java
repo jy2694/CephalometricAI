@@ -65,7 +65,6 @@ public class ImageService {
                 Files.copy(inputStream, destinationFile,
                         StandardCopyOption.REPLACE_EXISTING);
             }
-            Random random = new Random();
             Image image = Image.builder()
                     .originName(fileName)
                     .systemPath(systemPath)
@@ -77,10 +76,6 @@ public class ImageService {
             uploaded.add(image);
         }
         return uploaded;
-    }
-
-    public void modifyImage(Image image){
-        imageRepository.save(image);
     }
 
     public List<Image> getFiles(UUID memberId){

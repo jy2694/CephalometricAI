@@ -1,15 +1,16 @@
 package kr.ac.wku.cephalometricai.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import kr.ac.wku.cephalometricai.dto.FileDeleteDTO;
-import kr.ac.wku.cephalometricai.dto.FileModifyDTO;
-import kr.ac.wku.cephalometricai.dto.SessionDTO;
+import kr.ac.wku.cephalometricai.dto.*;
 import kr.ac.wku.cephalometricai.entity.Image;
 import kr.ac.wku.cephalometricai.entity.Member;
+import kr.ac.wku.cephalometricai.enums.ProcessStatus;
+import kr.ac.wku.cephalometricai.properties.PrivateCloudProperties;
 import kr.ac.wku.cephalometricai.properties.SessionManager;
 import kr.ac.wku.cephalometricai.service.ImageService;
 import kr.ac.wku.cephalometricai.service.MemberService;
 import lombok.AllArgsConstructor;
+import org.json.simple.parser.ParseException;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class FileController {
     private final SessionManager sessionManager;
     private final MemberService memberService;
     private final ImageService imageService;
+    private final PrivateCloudProperties privateCloudProperties;
 
     @PostMapping("/file/upload")
     public ResponseEntity<Object> uploadFiles(MultipartFile[] files, SessionDTO sessionDTO){
@@ -40,6 +42,43 @@ public class FileController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @PostMapping("file/points")
+    public ResponseEntity<Object> getImagePoints(@RequestBody GetPointDTO dto) throws IOException, ParseException {
+        UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
+        if(memberId == null)
+            return ResponseEntity.status(401).body("Session Expired.");
+        Optional<Member> memberOptional = memberService.findById(memberId);
+        if(memberOptional.isEmpty())
+            return ResponseEntity.status(401).body("Unknown Account.");
+        Optional<Image> imageOptional = imageService.findById(dto.getImageId());
+        if(imageOptional.isEmpty())
+            return ResponseEntity.notFound().build();
+        Member member = memberOptional.get();
+        Image image = imageOptional.get();
+        if(!member.getId().equals(image.getOwner()))
+            return ResponseEntity.status(403).body("Permission Denied.");
+        return ResponseEntity.ok().body(privateCloudProperties.getPoints(image));
+    }
+
+    @PostMapping("/file/pointedit")
+    public ResponseEntity<Object> setImagePoints(@RequestBody PointsDTO dto) throws IOException, ParseException {
+        UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
+        if(memberId == null)
+            return ResponseEntity.status(401).body("Session Expired.");
+        Optional<Member> memberOptional = memberService.findById(memberId);
+        if(memberOptional.isEmpty())
+            return ResponseEntity.status(401).body("Unknown Account.");
+        Optional<Image> imageOptional = imageService.findById(dto.getImageId());
+        if(imageOptional.isEmpty())
+            return ResponseEntity.notFound().build();
+        Member member = memberOptional.get();
+        Image image = imageOptional.get();
+        if(!member.getId().equals(image.getOwner()))
+            return ResponseEntity.status(403).body("Permission Denied.");
+        privateCloudProperties.setPoints(image, dto);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/file/list")
