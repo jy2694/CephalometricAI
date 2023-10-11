@@ -16,7 +16,7 @@ function App() {
 
   return (
     <div className="App">
-      <AnimatedCursor trailingSpeed={0}/>
+      <AnimatedCursor/>
       <header className="App-header">
         {session !== undefined && <MainPage session={session} setSession={createSession}/>}
         {session === undefined && <AccountPage createSession={createSession}/>}

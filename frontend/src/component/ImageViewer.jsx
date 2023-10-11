@@ -41,6 +41,7 @@ export default (props) => {
     useEffect(()=>setImageLoaded(false), [props.img]);
     useEffect(()=>{
         if(!isImageLoaded) return;
+        setEdit(false);
         if(props.img === "") {
             setCanvasHeight(imgRef.current.height);
             setCanvasWidth(imgRef.current.width);
@@ -90,12 +91,70 @@ export default (props) => {
             context.beginPath();
             context.globalCompositeOperation = "source-over";
             context.arc(point["x"], point["y"], 2, 0, 2 * Math.PI, false);
-            context.fillStyle = "red";
+            context.fillStyle = "orange";
             context.fill();
             context.closePath();
         }
         
+        if(serverPoint !== undefined && serverPoint !== null){
+            let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+            for(const point of serverPoint["predicted"]){
+                context.beginPath();
+                context.globalCompositeOperation = "source-over";
+                context.arc(point["x"]*scale, point["y"]*scale, 2, 0, 2 * Math.PI, false);
+                context.fillStyle = "red";
+                context.fill();
+                context.closePath();
+            }
+            for(const point of serverPoint["normal"]){
+                context.beginPath();
+                context.globalCompositeOperation = "source-over";
+                context.arc(point["x"]*scale, point["y"]*scale, 2, 0, 2 * Math.PI, false);
+                context.fillStyle = "green";
+                context.fill();
+                context.closePath();
+            }
+            for(const line of serverPoint["lines"]){
+                const startName = getPointByName(line["start"]);
+                const endName = getPointByName(line["end"]);
+                if(startName === null) continue;
+                if(endName === null) continue;
+                const color = line["color"];
+                context.beginPath();
+                context.moveTo(startName["x"], startName["y"]);
+                context.lineTo(endName["x"], endName["y"]);
+                context.strokeStyle = color;
+                context.lineWidth = 3;
+                context.stroke();
+                context.closePath();
+            }
+        }
     }, [points]);
+
+    const getPointByName = (name) => {
+        if(serverPoint !== undefined && serverPoint !== null){
+            let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+            for(const p of serverPoint["predicted"]){
+                if(p["name"] === name){
+                    return {
+                        "x": p["x"] * scale,
+                        "y": p["y"] * scale,
+                        "name": p["name"]
+                    };
+                }
+            }
+            for(const p of serverPoint["normal"]){
+                if(p["name"] === name){
+                    return {
+                        "x": p["x"] * scale,
+                        "y": p["y"] * scale,
+                        "name": p["name"]
+                    };
+                }
+            }
+        }
+        return null;
+    }
 
     useEffect(()=>{
         if(props.img === "") return;
@@ -103,7 +162,6 @@ export default (props) => {
             "sessionKey": props.session,
             "imageId": props.data[props.selected]["id"]
         });
-        console.log(sendData);
         axios({
             method:"POST",
             url: 'http://localhost:8080/file/points',
@@ -134,8 +192,38 @@ export default (props) => {
         return ()=> window.removeEventListener("resize", resizeHandler);
     }, []);
 
+    const savePoints = () => {
+        const userPointScaled = [];
+        let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+        for(let p of points){
+            userPointScaled.push({
+                "x": p["x"] / scale,
+                "y": p["y"] / scale,
+                "name": p["name"]
+            });
+        }
+        var sendData = JSON.stringify({
+            "sessionKey": props.session,
+            "imageId": props.data[props.selected]["id"],
+            "predicted": serverPoint["predicted"],
+            "normal": serverPoint["normal"],
+            "user": userPointScaled,
+            "lines": serverPoint["lines"]
+        });
+        axios({
+            method:"POST",
+            url: 'http://localhost:8080/file/pointedit',
+            data:sendData,
+            headers: {'Content-type': 'application/json'}
+        }).catch(error=>{
+            props.setSession(undefined);
+            alert("Session Expired.");
+        });
+    }
+
     const drawPoint = (x, y) => {
         setPoints([...points, {"x":x, "y":y, "name":""}]);
+        savePoints();
     }
 
     const removePoint = (x, y) => {
@@ -153,6 +241,7 @@ export default (props) => {
             points.splice(points.indexOf(minPoint), 1);
             setPoints([...points]);
         }
+        savePoints();
     }
 
     return <>

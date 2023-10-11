@@ -63,7 +63,7 @@ public class FileController {
     }
 
     @PostMapping("/file/pointedit")
-    public ResponseEntity<Object> setImagePoints(@RequestBody PointsDTO dto) throws IOException, ParseException {
+    public ResponseEntity<Object> setImagePoints(@RequestBody PointsDTO dto) throws IOException {
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null)
             return ResponseEntity.status(401).body("Session Expired.");
