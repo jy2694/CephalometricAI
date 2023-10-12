@@ -29,7 +29,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url: 'http://localhost:8080/file/delete',
+            url: 'http://localhost:8080/api/file/delete',
             data:sendData,
             headers: {'Content-type': 'application/json'}
         }).then((res)=>{

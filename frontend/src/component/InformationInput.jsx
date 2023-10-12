@@ -42,7 +42,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url: 'http://localhost:8080/file/modify',
+            url: 'http://localhost:8080/api/file/modify',
             data:sendData,
             headers: {'Content-type': 'application/json'}
         }).then((res)=>{
@@ -53,7 +53,7 @@ export default (props) => {
               });
               axios({
                   method:"POST",
-                  url: 'http://localhost:8080/file/list',
+                  url: 'http://localhost:8080/api/file/list',
                   data:sendData,
                   headers: {'Content-type': 'application/json'}
               }).then((r)=>{
@@ -66,7 +66,7 @@ export default (props) => {
     }
 
     const onRawDownload = (e) => {
-        window.open(props.selected < 0 ? "" : "http://localhost:8080/files/"+props.session+"/"+props.data[props.selected]["systemPath"], '_blank');
+        window.open(props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+props.data[props.selected]["systemPath"], '_blank');
     }
 
     const onProcessedDownload = () => {

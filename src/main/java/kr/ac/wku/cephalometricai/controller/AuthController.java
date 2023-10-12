@@ -22,7 +22,7 @@ public class AuthController {
 
     private final MemberService memberService;
 
-    @PostMapping("/auth/signin")
+    @PostMapping("api/auth/signin")
     public ResponseEntity<Object> signInProcess(@RequestBody SignInDTO dto){
         Optional<UUID> optionalUUID = memberService.signInProcess(dto);
         return optionalUUID.
@@ -30,7 +30,7 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(401).body("Incorrect ID or PW."));
     }
 
-    @PostMapping("/auth/signup")
+    @PostMapping("api/auth/signup")
     public ResponseEntity<Object> signUpProcess(@RequestBody SignUpDTO dto){
         try {
             memberService.signUpProcess(dto);
@@ -40,7 +40,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/auth/logout")
+    @PostMapping("api/auth/logout")
     public ResponseEntity<Object> logOutProcess(@RequestBody SessionDTO dto){
         memberService.logOutProcess(dto.getSessionKey());
         return ResponseEntity.ok().build();

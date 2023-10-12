@@ -33,7 +33,7 @@ public class FileController {
     private final ImageService imageService;
     private final PrivateCloudProperties privateCloudProperties;
 
-    @PostMapping("/file/upload")
+    @PostMapping("api/file/upload")
     public ResponseEntity<Object> uploadFiles(MultipartFile[] files, SessionDTO sessionDTO){
         try {
             imageService.uploadFiles(files, sessionDTO);
@@ -44,7 +44,7 @@ public class FileController {
         }
     }
 
-    @PostMapping("file/points")
+    @PostMapping("api/file/points")
     public ResponseEntity<Object> getImagePoints(@RequestBody GetPointDTO dto) throws IOException, ParseException {
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null)
@@ -62,7 +62,7 @@ public class FileController {
         return ResponseEntity.ok().body(privateCloudProperties.getPoints(image));
     }
 
-    @PostMapping("/file/pointedit")
+    @PostMapping("api/file/pointedit")
     public ResponseEntity<Object> setImagePoints(@RequestBody PointsDTO dto) throws IOException {
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null)
@@ -81,7 +81,7 @@ public class FileController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/file/list")
+    @PostMapping("api/file/list")
     public ResponseEntity<Object> getImageList(@RequestBody SessionDTO dto){
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null)
@@ -92,7 +92,7 @@ public class FileController {
         return ResponseEntity.ok().body(imageService.getFiles(memberId));
     }
 
-    @PostMapping("/file/delete")
+    @PostMapping("api/file/delete")
     public ResponseEntity<Object> deleteImage(@RequestBody FileDeleteDTO dto){
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null)
@@ -113,7 +113,7 @@ public class FileController {
         return ResponseEntity.ok().body(imageService.getFiles(member.getId()));
     }
 
-    @PostMapping("/file/modify")
+    @PostMapping("api/file/modify")
     public ResponseEntity<Object> modifyImageData(@RequestBody FileModifyDTO dto){
         UUID memberId = sessionManager.getSessionKey().get(dto.getSessionKey());
         if(memberId == null) return ResponseEntity.status(401).body("Session Expired.");
@@ -128,7 +128,7 @@ public class FileController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/files/{session}/{filename:.+}")
+    @GetMapping("api/files/{session}/{filename:.+}")
     public ResponseEntity<Resource> serveFile(HttpServletRequest request, @PathVariable String filename, @PathVariable String session) {
         Optional<Image> imageOptional = imageService.findBySystemPath(filename);
         if(imageOptional.isEmpty())

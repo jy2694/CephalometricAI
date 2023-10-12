@@ -25,7 +25,7 @@ export default (props) => {
       });
       axios({
           method:"POST",
-          url: 'http://localhost:8080/file/list',
+          url: 'http://localhost:8080/api/file/list',
           data:sendData,
           headers: {'Content-type': 'application/json'}
       }).then((res)=>{
@@ -53,7 +53,7 @@ export default (props) => {
     return <>
     <NavigationBar session={props.session} setSession={props.setSession} setImageData={refreshImageData}/>
     <Container className="mw-100 d-flex mt-5 justify-content-center align-items-center" style={{height:"78.5vh"}}>
-      <ImageViewer img={select < 0 ? "" : "http://localhost:8080/files/"+props.session+"/"+imageData[select]["systemPath"]} setSession={props.setSession} session={props.session} selected={select} data={imageData}/>
+      <ImageViewer img={select < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+imageData[select]["systemPath"]} setSession={props.setSession} session={props.session} selected={select} data={imageData}/>
       <Menu setImageData={refreshImageData} data={imageData} setImage={selectImageUrl} selected={select} session={props.session}/>
     </Container>
     </>;

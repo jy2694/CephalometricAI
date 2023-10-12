@@ -19,7 +19,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url: 'http://localhost:8080/auth/signup',
+            url: 'http://localhost:8080/api/auth/signup',
             data:sendData,
             headers: {'Content-type': 'application/json'}
         }).then((res)=>{
