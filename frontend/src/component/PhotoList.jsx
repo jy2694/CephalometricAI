@@ -1,7 +1,7 @@
 import { Button, Container, Form, ListGroup, Modal, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap"
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCheck, faTrashCan } from "@fortawesome/free-solid-svg-icons"
+import {faCheck, faHourglassHalf, faTrashCan} from "@fortawesome/free-solid-svg-icons"
 import axios from "axios"
 
 export default (props) => {
@@ -70,7 +70,7 @@ export default (props) => {
             variant={props.selected === i ? "primary" : (hover === i ? "secondary" : "none")}
         ><Container>
             {data["name"]}
-            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><Spinner className="ms-1" animation="border" variant="success" size="sm" /></OverlayTrigger>}
+            {data["status"] === "PROCESSING" && <OverlayTrigger placement="top" overlay={tooltip}><FontAwesomeIcon className="ms-2" icon={faHourglassHalf}/></OverlayTrigger>}
             {data["status"] === "COMPLETED" && <FontAwesomeIcon className="ms-1" icon={faCheck} style={{color: "#00f900",}} />}
         </Container>
         <OverlayTrigger placement="left" overlay={deleteTooltip}><FontAwesomeIcon onClick={()=>setDelId(i)} className="ms-1" icon={faTrashCan} /></OverlayTrigger>

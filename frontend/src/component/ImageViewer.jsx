@@ -90,7 +90,7 @@ export default (props) => {
         for(const point of points){
             context.beginPath();
             context.globalCompositeOperation = "source-over";
-            context.arc(point["x"], point["y"], 2, 0, 2 * Math.PI, false);
+            context.arc(point["x"], point["y"], 3, 0, 2 * Math.PI, false);
             context.fillStyle = "orange";
             context.fill();
             context.closePath();
@@ -101,7 +101,7 @@ export default (props) => {
             for(const point of serverPoint["predicted"]){
                 context.beginPath();
                 context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 2, 0, 2 * Math.PI, false);
+                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
                 context.fillStyle = "red";
                 context.fill();
                 context.closePath();
@@ -109,8 +109,8 @@ export default (props) => {
             for(const point of serverPoint["normal"]){
                 context.beginPath();
                 context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 2, 0, 2 * Math.PI, false);
-                context.fillStyle = "green";
+                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                context.fillStyle = "blue";
                 context.fill();
                 context.closePath();
             }
@@ -178,6 +178,7 @@ export default (props) => {
         const point = [];
         for(let p of serverPoint["user"]){
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+
             point.push({
                 "x": p["x"] * scale,
                 "y": p["y"] * scale,
