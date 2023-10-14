@@ -8,6 +8,7 @@ export default (props) => {
 
     const canvasRef = useRef(null);
     const imgRef = useRef(null);
+    const wideRef = useRef(null);
     const [edit, setEdit] = useState(false);
     const [alert, setAlert] = useState(false);
     const [show, setShow] = useState(false);
@@ -17,6 +18,13 @@ export default (props) => {
     const [canvasHeight, setCanvasHeight] = useState(0);
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [canvasRemoveMode, setCanvasRemoveMode] = useState(false);
+    const [wideX, setWideX] = useState(0);
+    const [wideY, setWideY] = useState(0);
+    const [wideWidth, setWideWidth] = useState(0);
+    const [wideHeight, setWideHeight] = useState(0);
+    const [wideRelativeX, setWideRelativeX] = useState(0);
+    const [wideRelativeY, setWideRelativeY] = useState(0);
+    const [wideShow, setWideShow] = useState(false);
 
     const [isImageLoaded, setImageLoaded] = useState(false);
     const [alertTitle, setAlertTitle] = useState("");
@@ -37,6 +45,23 @@ export default (props) => {
         setCanvasHeight(imgRef.current.height);
         setCanvasX(imageStartX);
     }
+
+    useEffect(()=>{
+        if(wideRef !== null){
+            console.log(wideRef);
+            // setWideWidth(wideRef.current.width);
+            // setWideHeight(wideRef.current.height);
+        }
+    }, [wideRef]);
+
+    useEffect(()=>{
+        // console.log("wideX : " + wideX);
+        // console.log("wideY : " + wideY);
+        // console.log("wideHeight : " + wideHeight);
+        // console.log("wideWidth : " + wideWidth);
+        setWideRelativeX(wideX+wideWidth);
+        setWideRelativeY(wideY+wideHeight);
+    }, [wideX, wideY, wideHeight, wideWidth]);
 
     useEffect(()=>setImageLoaded(false), [props.img]);
     useEffect(()=>{
@@ -319,8 +344,26 @@ export default (props) => {
                     } : ()=>{}} 
                     onMouseMove={edit && canvasRemoveMode ? (e) => {
                         removePoint(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                    } : ()=>{}}
+                    } : (e)=>{
+                        if(e.ctrlKey){
+                            setWideShow(true)
+                        } else {
+                            setWideShow(false)
+                        }
+                        setWideX(e.nativeEvent.offsetX);
+                        setWideY(e.nativeEvent.offsetY);
+                        
+                    }}
+                    onMouseLeave={(e)=>setWideShow(false)}
                     />
+                    <Container className="position-absolute w-25 h-50 border border-white"
+                        ref={wideRef}
+                        style={{
+                            top: (wideRelativeY+10) + "px",
+                            left: (wideRelativeX+10) + "px",
+                        }}>
+                         
+                    </Container>
             </Container>
         </Container>
 
