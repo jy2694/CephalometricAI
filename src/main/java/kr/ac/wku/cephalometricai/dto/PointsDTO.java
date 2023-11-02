@@ -25,4 +25,8 @@ public class PointsDTO {
         this.lines = lines;
         this.angles = angles;
     }
+
+    public static PointsDTO empty(){
+        return new PointsDTO(new Point[0],new Point[0],new Point[0], new Line[0], new Angle[0]);
+    }
 }

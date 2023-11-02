@@ -12,4 +12,5 @@ public class Line {
     private String start;
     private String end;
     private String color;
+    private String type;
 }

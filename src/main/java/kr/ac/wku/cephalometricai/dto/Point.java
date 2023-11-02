@@ -12,4 +12,5 @@ public class Point {
     private String name;
     private float x;
     private float y;
+    private String type;
 }

@@ -94,7 +94,7 @@ export default (props) => {
 
     const drawPointAtCanvas = () =>{
         const context = canvasRef.current.getContext("2d");
-        context.font = `13px Verdana`;
+        context.font = `10px Verdana`;
         for(const point of points){
             context.beginPath();
             context.globalCompositeOperation = "source-over";
