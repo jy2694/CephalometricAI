@@ -18,16 +18,20 @@ export default (props) => {
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [canvasRemoveMode, setCanvasRemoveMode] = useState(false);
     const [drawtimer, setDrawTimer] = useState(-1);
+    const [filterCheck, setFilterCheck] = useState({});
+
+    const [windowWidth, setWindowWidth] = useState(0);
+    const [windowHeight, setWindowHeight] = useState(0);
 
     const [isImageLoaded, setImageLoaded] = useState(false);
     const [alertTitle, setAlertTitle] = useState("");
     const [alertContent, setAlertContent] = useState("");
 
-
-
-
-    useEffect(()=>setImageLoaded(false), [props.img]);
-    useEffect(()=>{
+    const resizeWindow = () => {
+        setWindowWidth(window.innerWidth);
+        setWindowHeight(window.innerHeight);
+    }
+    const resizeCanvas = () => {
         if(!isImageLoaded) return;
         setEdit(false);
         if(props.img === "") {
@@ -42,7 +46,17 @@ export default (props) => {
         setCanvasWidth(imageWidth);
         setCanvasHeight(imgRef.current.height);
         setCanvasX(imageStartX);
-    }, [isImageLoaded]);
+    }
+    useEffect(() => {
+        window.addEventListener("resize", resizeWindow);
+        return ()=>{
+            window.removeEventListener("resize", resizeWindow);
+        };
+    }, []);
+    useEffect(resizeCanvas, [windowWidth, windowHeight, isImageLoaded]);
+    useEffect(()=>{
+        setImageLoaded(false)
+    }, [props.img]);
     useEffect(()=> {
         if(edit){
             if(props.selected < 0){
@@ -65,7 +79,6 @@ export default (props) => {
                 setAlertContent("Image is processing! Edit mode is available after processing.");
                 setAlert(true);
                 setEdit(false);
-                return;
             }
         }
     }, [edit]);
@@ -179,6 +192,11 @@ export default (props) => {
         }
     }
 
+    useEffect(() => {
+        setPoints([]);
+        setServerPoint(undefined);
+    }, [props.selected])
+
     const clearPointAtCanvas = () => {
         const context = canvasRef.current.getContext("2d");
         context.beginPath();
@@ -224,7 +242,7 @@ export default (props) => {
             headers: {'Content-type': 'application/json'}
         }).then((res)=>{
             setServerPoint(res.data);
-        }).catch(error=>{});
+        }).catch(_=>{});
     }, [props.selected]);
 
     useEffect(()=>{
@@ -268,7 +286,7 @@ export default (props) => {
             url: 'http://localhost:8080/api/file/pointedit',
             data:sendData,
             headers: {'Content-type': 'application/json'}
-        }).catch(error=>{
+        }).catch(_=>{
             props.setSession(undefined);
             alert("Session Expired.");
         });
@@ -297,57 +315,25 @@ export default (props) => {
         savePoints();
     }
 
+    const changeFilterCheck = (type: String, checked: Boolean) => {
+        setFilterCheck({
+            ...filterCheck,
+            [type]: checked
+        })
+    }
+
+
     return <>
         <Container className="d-flex justify-content-around align-item-center h-100 flex-column" style={{width:"73%"}}>
-            
-            <Container className="border border-white rounded mb-3 d-flex flex-column justify-content-around align-item-center w-100" style={{height:"20%"}}>
-                <h5 className="border-bottom pb-2 mt-3">Filter</h5>
-                <Container className="d-flex justify-content-around align-item-center w-100">
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 1"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 2"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 3"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 4"
-                />
-                </Container>
-                <Container className="d-flex justify-content-around align-item-center w-100 mb-3">
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 5"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 6"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 7"
-                />
-                <Form.Check
-                    type="switch"
-                    checked={true}
-                    label="Filter 8"
-                />
-                </Container>
+
+            <Container className="d-flex justify-content-between align-items-center">
+                <Form.Check checked={edit} label="Edit Mode" onChange={(e)=>setEdit(e.target.checked)}/>
+                <div className="d-flex align-items-center">
+                    {/*{filterRenderer()}*/}
+                    {/*TODO*/}
+                    <Button className="me-2" size="sm">Select All</Button>
+                </div>
             </Container>
-            <Form.Check className="d-flex"style={{top:"0px", left:"0px"}} checked={edit} label="Edit Mode" onChange={(e)=>setEdit(e.target.checked)}/>
             <Container className="w-100 position-relative" style={{height:"80%"}}>
                 <img ref={imgRef} src={props.img} onLoad={()=>setImageLoaded(true)} className="w-100 h-100 position-absolute" style={{top:"0px", left:"0px", objectFit:"contain"}} alt="Image not selected."/>
                 <canvas 
@@ -356,22 +342,22 @@ export default (props) => {
                     width={canvasWidth+"px"}
                     height={canvasHeight+"px"}
                     style={{top:"0px", left:canvasX+"px", cursor:"crosshair"}} 
-                    onClick={edit ? (e)=>{} : ()=>setShow(true)}
+                    onClick={edit ? ()=>{} : ()=>setShow(true)}
                     onMouseDown={edit ? (e) => {
-                        if(e.button == 0){
+                        if(e.button === 0){
                             drawPoint(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                        } else if(e.button == 2){
+                        } else if(e.button === 2){
                             setCanvasRemoveMode(true);
                         }
                     } : ()=>{}}
                     onMouseUp={edit ? (e)=> {
-                        if(e.button == 2){
+                        if(e.button === 2){
                             setCanvasRemoveMode(false);
                         }
                     } : ()=>{}} 
                     onMouseMove={edit && canvasRemoveMode ? (e) => {
                         removePoint(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                    } : (e)=>{}}
+                    } : (_)=>{}}
                     />
             </Container>
         </Container>
