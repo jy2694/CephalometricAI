@@ -108,10 +108,23 @@ export default (props) => {
     }, [edit]);
 
     useEffect(() => {
+        if(drawtimer !== -1){
+            clearTimeout(drawtimer)
+            setDrawTimer(-1)
+        }
+        clearPointAtCanvas()
+        setDrawTimer(setTimeout(drawPointAtCanvas, 250))
+    }, [points]);
+
+    const clearPointAtCanvas = () => {
         const context = canvasRef.current.getContext("2d");
         context.beginPath();
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         context.closePath();
+    }
+
+    const drawPointAtCanvas = () =>{
+        const context = canvasRef.current.getContext("2d");
         for(const point of points){
             context.beginPath();
             context.globalCompositeOperation = "source-over";
@@ -120,7 +133,7 @@ export default (props) => {
             context.fill();
             context.closePath();
         }
-        
+
         if(serverPoint !== undefined && serverPoint !== null){
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
             for(const point of serverPoint["predicted"]){
@@ -154,7 +167,8 @@ export default (props) => {
                 context.closePath();
             }
         }
-    }, [points]);
+    }
+
 
     const getPointByName = (name) => {
         if(serverPoint !== undefined && serverPoint !== null){
