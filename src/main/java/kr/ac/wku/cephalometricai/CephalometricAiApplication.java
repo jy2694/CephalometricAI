@@ -21,12 +21,8 @@ public class CephalometricAiApplication {
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(CephalometricAiApplication.class, args);
 	}
-
-
 	@Bean
 	CommandLineRunner init(PrivateCloudProperties properties) {
-		return (args) -> {
-			Files.createDirectories(Paths.get(properties.getPath()));
-		};
+		return (args) -> Files.createDirectories(Paths.get(properties.getPath()));
 	}
 }

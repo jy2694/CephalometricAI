@@ -9,7 +9,7 @@ export default (props) => {
     return <>
         <Container className="h-100 d-flex justify-content-start align-items-center" style={{width:"27%", flexDirection:"column"}}>
             <PhotoList data={props.data} setImageData={props.setImageData} setImage={props.setImage} selected={props.selected} session={props.session}/>
-            <InformationInput setImageData={props.setImageData} data={props.data} selected={props.selected} session={props.session}/>
+            <InformationInput downloadCanvas={props.downloadCanvas} setImageData={props.setImageData} data={props.data} selected={props.selected} session={props.session}/>
         </Container>
     </>
 }
