@@ -17,6 +17,7 @@ export default (props) => {
     const [canvasHeight, setCanvasHeight] = useState(0);
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [canvasRemoveMode, setCanvasRemoveMode] = useState(false);
+    const [drawtimer, setDrawTimer] = useState(-1);
 
     const [isImageLoaded, setImageLoaded] = useState(false);
     const [alertTitle, setAlertTitle] = useState("");
@@ -70,11 +71,17 @@ export default (props) => {
     }, [edit]);
 
     useEffect(() => {
+        if(drawtimer !== -1){
+            clearTimeout(drawtimer)
+            setDrawTimer(-1)
+        }
+        clearPointAtCanvas()
+        setDrawTimer(setTimeout(drawPointAtCanvas, 250))
+    }, [points]);
+
+    const drawPointAtCanvas = () =>{
         const context = canvasRef.current.getContext("2d");
         context.font = `13px Verdana`;
-        context.beginPath();
-        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        context.closePath();
         for(const point of points){
             context.beginPath();
             context.globalCompositeOperation = "source-over";
@@ -170,7 +177,14 @@ export default (props) => {
                 context.closePath();
             }
         }
-    }, [points]);
+    }
+
+    const clearPointAtCanvas = () => {
+        const context = canvasRef.current.getContext("2d");
+        context.beginPath();
+        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        context.closePath();
+    }
 
     const getPointByName = (name) => {
         if(serverPoint !== undefined && serverPoint !== null){
