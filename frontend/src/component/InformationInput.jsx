@@ -1,9 +1,8 @@
 import { faCheck, faDownload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import { Button, Container, Form } from "react-bootstrap";
-import {MutableRefObject} from "react";
 
 export default (props) => {
 
@@ -33,7 +32,7 @@ export default (props) => {
         setPatient(data["patient"] === undefined || data["patient"] === null ? "" : data["patient"]);
     }, [props.selected]);
 
-    const modifyImageData = (e) => {
+    const modifyImageData = () => {
         const data = props.data[props.selected];
         if(data === undefined) return;
         var sendData = JSON.stringify({
@@ -48,7 +47,7 @@ export default (props) => {
             url: 'http://localhost:8080/api/file/modify',
             data:sendData,
             headers: {'Content-type': 'application/json'}
-        }).then((res)=>{
+        }).then((_)=>{
             alert("The information has been reflected.");
             if(props.session === undefined) return;
               var sendData = JSON.stringify({
@@ -63,21 +62,45 @@ export default (props) => {
                   props.setImageData(r.data);
               });
               
-        }).catch(error=>{
+        }).catch(_=>{
             alert("Internal Server Error.")
         });
     }
 
-    const onRawDownload = (e) => {
+    const onRawDownload = (_) => {
         //TODO - Edit Require
-        window.open(props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+props.data[props.selected]["systemPath"], '_blank');
+        const data = props.data[props.selected];
+        const url = props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+data["systemPath"];
+        const image = new Image();
+        image.crossOrigin = 'Anonymous'
+        image.src = url;
+        image.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const context = canvas.getContext('2d');
+            context.drawImage(image, 0, 0);
+            const dataurl = canvas.toDataURL("images/png");
+            const link = document.createElement("a");
+            link.href = dataurl;
+            let filename = data["name"];
+            if (data["patient"] !== undefined && data["patient"] !== null){
+                filename = filename + "_" + data["patient"];
+            }
+            if (data["createAt"] !== undefined && data["createAt"] !== null){
+                filename = filename + "_" + data["createAt"];
+            }
+            filename = filename + ".png";
+            link.download = filename;
+            link.click();
+        }
     }
 
     const onProcessedDownload = () => {
         const imageURL = props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+props.data[props.selected]["systemPath"];
         if(imageURL === "") return;
         const context = props.downloadCanvas.current.getContext("2d");
-        var img = new Image ();
+        const img = new Image ();
         img.crossOrigin = 'Anonymous';
         img.src = imageURL;
         img.onload = function ()
@@ -192,17 +215,26 @@ export default (props) => {
                     context.closePath();
                 }
                 setDownloadReady(true);
-            }).catch(error=>{});
+            }).catch(_=>{});
         }
     }
 
     useEffect(()=>{
         if(downloadReady){
+            const data = props.data[props.selected];
             let canvas = props.downloadCanvas.current
             let url = canvas.toDataURL("image/png");
             let link = document.createElement('a');
-            link.download = 'test.png';
             link.href = url;
+            let filename = data["name"];
+            if (data["patient"] !== undefined && data["patient"] !== null){
+                filename = filename + "_" + data["patient"];
+            }
+            if (data["createAt"] !== undefined && data["createAt"] !== null){
+                filename = filename + "_" + data["createAt"];
+            }
+            filename = filename + "_proc.png";
+            link.download = filename;
             link.click();
             setDownloadReady(false);
         }
