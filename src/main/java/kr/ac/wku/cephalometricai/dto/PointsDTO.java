@@ -16,11 +16,13 @@ public class PointsDTO {
     private Point[] normal;
     private Point[] user;
     private Line[] lines;
+    private Angle[] angles;
 
-    public PointsDTO(Point[] predicted, Point[] normal, Point[] user, Line[] lines) {
+    public PointsDTO(Point[] predicted, Point[] normal, Point[] user, Line[] lines, Angle[] angles) {
         this.predicted = predicted;
         this.normal = normal;
         this.user = user;
         this.lines = lines;
+        this.angles = angles;
     }
 }

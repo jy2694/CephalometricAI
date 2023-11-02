@@ -8,7 +8,6 @@ export default (props) => {
 
     const canvasRef = useRef(null);
     const imgRef = useRef(null);
-    const wideRef = useRef(null);
     const [edit, setEdit] = useState(false);
     const [alert, setAlert] = useState(false);
     const [show, setShow] = useState(false);
@@ -18,50 +17,14 @@ export default (props) => {
     const [canvasHeight, setCanvasHeight] = useState(0);
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [canvasRemoveMode, setCanvasRemoveMode] = useState(false);
-    const [wideX, setWideX] = useState(0);
-    const [wideY, setWideY] = useState(0);
-    const [wideWidth, setWideWidth] = useState(0);
-    const [wideHeight, setWideHeight] = useState(0);
-    const [wideRelativeX, setWideRelativeX] = useState(0);
-    const [wideRelativeY, setWideRelativeY] = useState(0);
-    const [wideShow, setWideShow] = useState(false);
+    const [drawtimer, setDrawTimer] = useState(-1);
 
     const [isImageLoaded, setImageLoaded] = useState(false);
     const [alertTitle, setAlertTitle] = useState("");
     const [alertContent, setAlertContent] = useState("");
 
 
-    const resizeHandler = () => {
-        if(imgRef.current.naturalHeight === 0) {
-            setCanvasHeight(imgRef.current.height);
-            setCanvasWidth(imgRef.current.width);
-            setCanvasX(0);
-            return;
-        }
-        let scale = (imgRef.current.height / imgRef.current.naturalHeight);
-        let imageWidth = imgRef.current.naturalWidth * scale;
-        let imageStartX = (imgRef.current.width - imageWidth) / 2;
-        setCanvasWidth(imageWidth);
-        setCanvasHeight(imgRef.current.height);
-        setCanvasX(imageStartX);
-    }
 
-    useEffect(()=>{
-        if(wideRef !== null){
-            console.log(wideRef);
-            // setWideWidth(wideRef.current.width);
-            // setWideHeight(wideRef.current.height);
-        }
-    }, [wideRef]);
-
-    useEffect(()=>{
-        // console.log("wideX : " + wideX);
-        // console.log("wideY : " + wideY);
-        // console.log("wideHeight : " + wideHeight);
-        // console.log("wideWidth : " + wideWidth);
-        setWideRelativeX(wideX+wideWidth);
-        setWideRelativeY(wideY+wideHeight);
-    }, [wideX, wideY, wideHeight, wideWidth]);
 
     useEffect(()=>setImageLoaded(false), [props.img]);
     useEffect(()=>{
@@ -116,15 +79,9 @@ export default (props) => {
         setDrawTimer(setTimeout(drawPointAtCanvas, 250))
     }, [points]);
 
-    const clearPointAtCanvas = () => {
-        const context = canvasRef.current.getContext("2d");
-        context.beginPath();
-        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        context.closePath();
-    }
-
     const drawPointAtCanvas = () =>{
         const context = canvasRef.current.getContext("2d");
+        context.font = `13px Verdana`;
         for(const point of points){
             context.beginPath();
             context.globalCompositeOperation = "source-over";
@@ -136,22 +93,6 @@ export default (props) => {
 
         if(serverPoint !== undefined && serverPoint !== null){
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
-            for(const point of serverPoint["predicted"]){
-                context.beginPath();
-                context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
-                context.fillStyle = "red";
-                context.fill();
-                context.closePath();
-            }
-            for(const point of serverPoint["normal"]){
-                context.beginPath();
-                context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
-                context.fillStyle = "blue";
-                context.fill();
-                context.closePath();
-            }
             for(const line of serverPoint["lines"]){
                 const startName = getPointByName(line["start"]);
                 const endName = getPointByName(line["end"]);
@@ -166,9 +107,84 @@ export default (props) => {
                 context.stroke();
                 context.closePath();
             }
+            for(const angle of serverPoint["angles"]){
+                context.beginPath();
+                context.globalCompositeOperation = "source-over";
+                const center = {
+                    "x" : angle["center"]["x"] * scale,
+                    "y" : angle["center"]["y"] * scale
+                }
+                const p1 = {
+                    "x" : angle["p1"]["x"] * scale,
+                    "y" : angle["p1"]["y"] * scale
+                }
+                const degree = angle["angle"]
+                const rel_x = p1["x"] - center["x"];
+                const rel_y = p1["y"] - center["y"];
+                const radius = Math.sqrt(Math.pow(rel_x, 2) + Math.pow(rel_y, 2));
+                const startAngle = Math.asin(rel_y / radius) - (Math.PI / 2);
+                const endAngle = startAngle + (degree * Math.PI / 180);
+                context.lineWidth = 3
+                context.arc(center["x"], center["y"], radius, startAngle, endAngle, false);
+                context.strokeStyle = "red";
+                context.stroke();
+                context.closePath();
+
+                const centerAngle = startAngle + (degree/2 * Math.PI / 180);
+                const angleTextX = center["x"] + radius * Math.cos(centerAngle);
+                const angleTextY = center["y"] + radius * Math.sin(centerAngle);
+                context.beginPath();
+                context.lineWidth = 1;
+                context.fillStyle = "red";
+                context.fillText(degree + "°", angleTextX+5, angleTextY+5)
+                context.strokeStyle = "red";
+                context.strokeText(degree + "°", angleTextX+5, angleTextY+5)
+                context.closePath();
+
+            }
+            for(const point of serverPoint["predicted"]){
+                context.beginPath();
+                context.globalCompositeOperation = "source-over";
+                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                context.fillStyle = "red";
+                context.fill();
+                context.closePath();
+                context.beginPath();
+                context.lineWidth = 1;
+                if(point["name"] !== undefined && point["name"] !== null){
+                    context.fillStyle = "red";
+                    context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
+                    context.strokeStyle = "red";
+                    context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+                }
+                context.closePath();
+            }
+            for(const point of serverPoint["normal"]){
+                context.beginPath();
+                context.globalCompositeOperation = "source-over";
+                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                context.fillStyle = "blue";
+                context.fill();
+                context.closePath();
+                context.beginPath();
+                context.lineWidth = 1;
+                if(point["name"] !== undefined && point["name"] !== null){
+                    context.fillStyle = "blue";
+                    context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
+                    context.strokeStyle = "blue";
+                    context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+                }
+                context.closePath();
+            }
         }
     }
 
+    const clearPointAtCanvas = () => {
+        const context = canvasRef.current.getContext("2d");
+        context.beginPath();
+        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        context.closePath();
+    }
 
     const getPointByName = (name) => {
         if(serverPoint !== undefined && serverPoint !== null){
@@ -227,10 +243,6 @@ export default (props) => {
         setPoints(point);
     }, [serverPoint]);
 
-    useEffect(()=>{
-        window.addEventListener("resize", resizeHandler);
-        return ()=> window.removeEventListener("resize", resizeHandler);
-    }, []);
 
     const savePoints = () => {
         const userPointScaled = [];
@@ -248,7 +260,8 @@ export default (props) => {
             "predicted": serverPoint["predicted"],
             "normal": serverPoint["normal"],
             "user": userPointScaled,
-            "lines": serverPoint["lines"]
+            "lines": serverPoint["lines"],
+            "angles": serverPoint["angles"]
         });
         axios({
             method:"POST",
@@ -358,26 +371,8 @@ export default (props) => {
                     } : ()=>{}} 
                     onMouseMove={edit && canvasRemoveMode ? (e) => {
                         removePoint(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-                    } : (e)=>{
-                        if(e.ctrlKey){
-                            setWideShow(true)
-                        } else {
-                            setWideShow(false)
-                        }
-                        setWideX(e.nativeEvent.offsetX);
-                        setWideY(e.nativeEvent.offsetY);
-                        
-                    }}
-                    onMouseLeave={(e)=>setWideShow(false)}
+                    } : (e)=>{}}
                     />
-                    <Container className="position-absolute w-25 h-50 border border-white"
-                        ref={wideRef}
-                        style={{
-                            top: (wideRelativeY+10) + "px",
-                            left: (wideRelativeX+10) + "px",
-                        }}>
-                         
-                    </Container>
             </Container>
         </Container>
 

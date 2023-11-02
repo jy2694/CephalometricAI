@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { Container } from "react-bootstrap";
 import ImageViewer from "../component/ImageViewer";
 import Menu from "../component/Menu";
 import axios from "axios";
 import NavigationBar from "../component/NavigationBar";
+import {MutableRefObject} from "react";
 
 export default (props) => {
     const [imageData, setImageData] = useState([]);
     const [timerFlag, setTimerFlag] = useState(false);
     const [select, setSelect] = useState(-1);
+    const downloadCanvas: MutableRefObject<HTMLCanvasElement> = useRef()
   
     const selectImageUrl = (number) => {
       setSelect(number);
@@ -51,10 +53,13 @@ export default (props) => {
     }, [timerFlag]);
 
     return <>
+    <canvas ref={downloadCanvas} style={{display: "none"}}>
+
+    </canvas>
     <NavigationBar session={props.session} setSession={props.setSession} setImageData={refreshImageData}/>
     <Container className="mw-100 d-flex mt-5 justify-content-center align-items-center" style={{height:"78.5vh"}}>
       <ImageViewer img={select < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+imageData[select]["systemPath"]} setSession={props.setSession} session={props.session} selected={select} data={imageData}/>
-      <Menu setImageData={refreshImageData} data={imageData} setImage={selectImageUrl} selected={select} session={props.session}/>
+      <Menu downloadCanvas={downloadCanvas} setImageData={refreshImageData} data={imageData} setImage={selectImageUrl} selected={select} session={props.session}/>
     </Container>
     </>;
 }

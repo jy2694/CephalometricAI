@@ -1,5 +1,6 @@
 package kr.ac.wku.cephalometricai.properties;
 
+import kr.ac.wku.cephalometricai.dto.Angle;
 import kr.ac.wku.cephalometricai.dto.Line;
 import kr.ac.wku.cephalometricai.dto.Point;
 import kr.ac.wku.cephalometricai.dto.PointsDTO;
@@ -29,6 +30,7 @@ public class PrivateCloudProperties {
         JSONArray normalArray = new JSONArray();
         JSONArray userArray = new JSONArray();
         JSONArray lineArray = new JSONArray();
+        JSONArray angleArray = new JSONArray();
         for(Point point : dto.getPredicted()){
             JSONObject pointObj = new JSONObject();
             pointObj.put("x", point.getX());
@@ -58,10 +60,24 @@ public class PrivateCloudProperties {
             lineObj.put("color", line.getColor());
             lineArray.add(lineObj);
         }
+        for(Angle angle : dto.getAngles()){
+            JSONObject angleObj = new JSONObject();
+            JSONObject centerObj = new JSONObject();
+            JSONObject p1Obj = new JSONObject();
+            centerObj.put("x", angle.getCenter().getX());
+            centerObj.put("y", angle.getCenter().getY());
+            p1Obj.put("x", angle.getP1().getX());
+            p1Obj.put("y", angle.getP1().getY());
+            angleObj.put("center", centerObj);
+            angleObj.put("p1", p1Obj);
+            angleObj.put("angle", angle.getAngle());
+            angleArray.add(angleObj);
+        }
         object.put("predicted", predictedArray);
         object.put("normal", normalArray);
         object.put("user", userArray);
         object.put("line", lineArray);
+        object.put("angle", angleArray);
         FileWriter file = new FileWriter(jsonFile);
         file.write(object.toJSONString());
         file.flush();
@@ -73,23 +89,25 @@ public class PrivateCloudProperties {
             UUID uuid = image.getOwner();
             String fileUUID = image.getSystemPath().substring(0, image.getSystemPath().indexOf('.'));
             File jsonFile = new File(path + "/" + uuid.toString() + "/" + fileUUID + ".json");
-            if(!jsonFile.exists()) return new PointsDTO(new Point[0],new Point[0],new Point[0], new Line[0]);
+            if(!jsonFile.exists()) return new PointsDTO(new Point[0],new Point[0],new Point[0], new Line[0], new Angle[0]);
             String line;
             BufferedReader br = new BufferedReader(new FileReader(jsonFile));
             StringBuilder sb = new StringBuilder();
             while((line = br.readLine()) != null) sb.append(line);
-            if(sb.isEmpty()) return new PointsDTO(new Point[0],new Point[0],new Point[0], new Line[0]);
+            if(sb.isEmpty()) return new PointsDTO(new Point[0],new Point[0],new Point[0], new Line[0], new Angle[0]);
             JSONObject object = (JSONObject) new JSONParser().parse(sb.toString());
 
             JSONArray predictedArray = (JSONArray) object.get("predicted");
             JSONArray normalArray = (JSONArray) object.get("normal");
             JSONArray userArray = (JSONArray) object.get("user");
             JSONArray lineArray = (JSONArray) object.get("line");
+            JSONArray angleArray = (JSONArray) object.get("angle");
 
             Point[] predicted = predictedArray != null ? new Point[predictedArray.size()] : new Point[0];
             Point[] normal = normalArray != null ? new Point[normalArray.size()] : new Point[0];
             Point[] user = userArray != null ? new Point[userArray.size()] : new Point[0];
             Line[] lines = lineArray != null ? new Line[lineArray.size()] : new Line[0];
+            Angle[] angles = angleArray != null ? new Angle[angleArray.size()] : new Angle[0];
 
             if(predictedArray != null)
                 for(int i = 0; i < predicted.length; i ++){
@@ -129,7 +147,26 @@ public class PrivateCloudProperties {
                     );
                 }
             }
-            return new PointsDTO(predicted, normal, user, lines);
+            if(angleArray != null){
+                for(int i = 0; i < angles.length; i ++){
+                    JSONObject angleObj = (JSONObject) angleArray.get(i);
+                    JSONObject centerObj = (JSONObject) angleObj.get("center");
+                    JSONObject p1Obj = (JSONObject) angleObj.get("p1");
+                    Point center = new Point(null,
+                            Float.parseFloat(centerObj.get("x").toString()),
+                            Float.parseFloat(centerObj.get("y").toString()));
+                    Point p1 = new Point(null,
+                            Float.parseFloat(p1Obj.get("x").toString()),
+                            Float.parseFloat(p1Obj.get("y").toString()));
+                    Angle angle = new Angle(
+                            center,
+                            p1,
+                            Double.parseDouble(angleObj.get("angle").toString())
+                    );
+                    angles[i] = angle;
+                }
+            }
+            return new PointsDTO(predicted, normal, user, lines, angles);
         } catch(IOException | ParseException e){
             e.printStackTrace();
         }
