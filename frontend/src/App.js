@@ -1,7 +1,7 @@
 import './App.css';
 import NavigationBar from './component/NavigationBar';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import MainPage from './pages/MainPage';
 import AccountPage from './pages/AccountPage';
 import AnimatedCursor from 'react-animated-cursor';
@@ -14,9 +14,10 @@ function App() {
     setSession(sessionKey);
   }
 
+
+
   return (
     <div className="App">
-      {/*<AnimatedCursor/>*/}
       <header className="App-header">
         {session !== undefined && <MainPage session={session} setSession={createSession}/>}
         {session === undefined && <AccountPage createSession={createSession}/>}

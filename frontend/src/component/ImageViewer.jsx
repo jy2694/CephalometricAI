@@ -8,6 +8,11 @@ export default (props) => {
 
     const canvasRef = useRef(null);
     const imgRef = useRef(null);
+    const wideCanvasRef = useRef(null);
+    const processor = useRef(null);
+    const [loadedProcessorImage, setLoadedProcessorImage] = useState(null);
+    const [wideCanvasReloadFlag, setWideCanvasReloadFlag] = useState(true);
+    const [wideCanvasImage, setWideCanvasImage] = useState(null);
     const [edit, setEdit] = useState(false);
     const [alert, setAlert] = useState(false);
     const [show, setShow] = useState(false);
@@ -18,7 +23,15 @@ export default (props) => {
     const [canvasWidth, setCanvasWidth] = useState(0);
     const [canvasRemoveMode, setCanvasRemoveMode] = useState(false);
     const [drawtimer, setDrawTimer] = useState(-1);
-    const [filterCheck, setFilterCheck] = useState({});
+    const [filterCheck, setFilterCheck] = useState({
+        "NORMAL" : true,
+        "USER": true,
+        "PREDICTED" : true,
+        "U1NA" : true,
+        "L1NB" : true,
+        "U1L1" : true,
+        "L1CHIN" : true
+    });
 
     const [windowWidth, setWindowWidth] = useState(0);
     const [windowHeight, setWindowHeight] = useState(0);
@@ -27,6 +40,122 @@ export default (props) => {
     const [alertTitle, setAlertTitle] = useState("");
     const [alertContent, setAlertContent] = useState("");
 
+    const [isInCanvas, setInCanvas] = useState(false);
+    const [mouseX, setMouseX] = useState(0);
+    const [mouseY, setMouseY] = useState(0);
+    const [canvasMouseX, setCanvasMouseX] = useState(0);
+    const [canvasMouseY, setCanvasMouseY] = useState(0);
+
+    const mouseMove = (e) => {
+        let rect = canvasRef.current.getBoundingClientRect();
+        const inX = rect.x < e.clientX && e.clientX < rect.x+rect.width;
+        const inY = rect.y < e.clientY && e.clientY < rect.y+rect.height;
+        if(inX && inY && e.ctrlKey){
+            setInCanvas(true);
+            setMouseX(e.clientX);
+            setMouseY(e.clientY);
+            setCanvasMouseX(e.clientX - rect.x);
+            setCanvasMouseY(e.clientY - rect.y);
+        } else {
+            setInCanvas(false);
+        }
+    }
+
+    useEffect(()=>{
+        if(wideCanvasRef === null) return;
+        if(imgRef.current.naturalHeight === 0) return;
+        if(props.img === "") return;
+        let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+
+        let startX = canvasMouseX - (wideCanvasRef.current.width/2);
+        let startY = canvasMouseY - (wideCanvasRef.current.height/2);
+        startX /= scale;
+        startY /= scale;
+        if(startX < 0) startX = 0;
+        if(startY < 0) startY = 0;
+        let endX = startX + (wideCanvasRef.current.width/scale);
+        let endY = startY + (wideCanvasRef.current.height/scale);
+        if(endX > imgRef.current.naturalWidth) {
+            endX = imgRef.current.naturalWidth;
+            startX = endX - (wideCanvasRef.current.width/scale);
+        }
+        if(endY > imgRef.current.naturalHeight) {
+            endY = imgRef.current.naturalHeight;
+            startY = endY - (wideCanvasRef.current.height/scale);
+        }
+
+        let pointerX = wideCanvasRef.current.width / 2;
+        let pointerY = wideCanvasRef.current.height / 2;
+        const pointerSize = 10;
+
+        if(startX === 0){
+            pointerX = canvasMouseX;
+        }
+        if(startY === 0){
+            pointerY = canvasMouseY;
+        }
+        if(endX === imgRef.current.naturalWidth){
+            let mousePercent = (imgRef.current.width - canvasMouseX) / (wideCanvasRef.current.width/2);
+            mousePercent -= 1;
+            if(mousePercent < 0) mousePercent = 0;
+            pointerX = wideCanvasRef.current.width + (wideCanvasRef.current.width/2 * -mousePercent);
+        }
+        if(endY === imgRef.current.naturalHeight){
+            let mousePercent = (imgRef.current.height - canvasMouseY) / (wideCanvasRef.current.height/2);
+            if(mousePercent < 0) mousePercent = 0;
+            pointerY = wideCanvasRef.current.height + (wideCanvasRef.current.height/2 * -mousePercent);
+        }
+
+        const context = wideCanvasRef.current.getContext("2d");
+        if(wideCanvasReloadFlag || wideCanvasImage === null){
+            const img = new Image();
+            img.src = processor.current.toDataURL();
+            img.onload = () => {
+                context.drawImage(img, startX, startY, endX-startX, endY-startY, 0, 0, wideCanvasRef.current.width, wideCanvasRef.current.height);
+                context.beginPath();
+                context.rect(pointerX-pointerSize, pointerY-1, pointerSize*2, 2);
+                context.fillStyle="black"
+                context.strokeStyle="dimgray"
+                context.fill();
+                context.stroke();
+                context.closePath();
+                context.beginPath();
+                context.rect(pointerX-1, pointerY-pointerSize, 2, pointerSize*2);
+                context.fillStyle="black"
+                context.strokeStyle="dimgray"
+                context.fill();
+                context.stroke();
+                context.closePath();
+            }
+            setWideCanvasImage(img);
+            setWideCanvasReloadFlag(false);
+        } else {
+            context.drawImage(wideCanvasImage, startX, startY, endX-startX, endY-startY, 0, 0, wideCanvasRef.current.width, wideCanvasRef.current.height);
+            context.beginPath();
+            context.rect(pointerX-pointerSize, pointerY-1, pointerSize*2, 2);
+            context.fillStyle="black"
+            context.strokeStyle="dimgray"
+            context.fill();
+            context.stroke();
+            context.closePath();
+            context.beginPath();
+            context.rect(pointerX-1, pointerY-pointerSize, 2, pointerSize*2);
+            context.fillStyle="black"
+            context.strokeStyle="dimgray"
+            context.fill();
+            context.stroke();
+            context.closePath();
+        }
+    }, [canvasMouseX, canvasMouseY]);
+
+    useEffect(()=>{
+        setWideCanvasReloadFlag(true);
+    }, [loadedProcessorImage]);
+
+    useEffect(()=>{
+        window.addEventListener("mousemove", mouseMove);
+        return () => window.removeEventListener("mousemove", mouseMove);
+    }, []);
     const resizeWindow = () => {
         setWindowWidth(window.innerWidth);
         setWindowHeight(window.innerHeight);
@@ -38,22 +167,34 @@ export default (props) => {
             setCanvasHeight(imgRef.current.height);
             setCanvasWidth(imgRef.current.width);
             setCanvasX(0);
-            return;
+        } else {
+            let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+            let imageWidth = imgRef.current.naturalWidth * scale;
+            let imageStartX = (imgRef.current.width - imageWidth) / 2;
+            setCanvasWidth(imageWidth);
+            setCanvasHeight(imgRef.current.height);
+            setCanvasX(imageStartX);
         }
-        let scale = (imgRef.current.height / imgRef.current.naturalHeight);
-        let imageWidth = imgRef.current.naturalWidth * scale;
-        let imageStartX = (imgRef.current.width - imageWidth) / 2;
-        setCanvasWidth(imageWidth);
-        setCanvasHeight(imgRef.current.height);
-        setCanvasX(imageStartX);
+        if(drawtimer !== -1){
+            clearTimeout(drawtimer);
+            setDrawTimer(-1);
+        }
+        clearPointAtCanvas();
+        setDrawTimer(setTimeout(drawPointAtCanvas, 250));
     }
+
     useEffect(() => {
         window.addEventListener("resize", resizeWindow);
         return ()=>{
             window.removeEventListener("resize", resizeWindow);
         };
     }, []);
-    useEffect(resizeCanvas, [windowWidth, windowHeight, isImageLoaded]);
+    useEffect(resizeCanvas, [windowWidth, windowHeight]);
+    useEffect(()=>{
+        if(!isImageLoaded) return;
+        resizeCanvas();
+        drawPointAtProcessorCanvas();
+    }, [isImageLoaded]);
     useEffect(()=>{
         setImageLoaded(false)
     }, [props.img]);
@@ -84,31 +225,193 @@ export default (props) => {
     }, [edit]);
 
     useEffect(() => {
+        //Preview Canvas
         if(drawtimer !== -1){
-            clearTimeout(drawtimer)
-            setDrawTimer(-1)
+            clearTimeout(drawtimer);
+            setDrawTimer(-1);
         }
-        clearPointAtCanvas()
-        setDrawTimer(setTimeout(drawPointAtCanvas, 250))
-    }, [points]);
+        clearPointAtCanvas();
+        if(edit){
+            drawPointAtCanvas();
+            drawPointAtProcessorCanvas();
+        } else {
+            setDrawTimer(setTimeout(()=>{
+                drawPointAtCanvas();
+            }, 250));
+        }
+
+    }, [points, filterCheck, props.pixelDistance]);
+
+
+
+
+    const drawPointAtProcessorCanvas = () => {
+        if(processor === null) return;
+        if(props.img === "") return;
+        if(imgRef === null) return;
+        if(imgRef.current.naturalWidth === 0) return;
+        processor.current.width = imgRef.current.naturalWidth;
+        processor.current.height = imgRef.current.naturalHeight;
+        const context = processor.current.getContext("2d");
+        if(edit || (loadedProcessorImage === null || loadedProcessorImage.src !== props.img)){
+            const img = new Image();
+            img.crossOrigin = 'Anonymous'
+            img.src = props.img;
+            img.onload = () => {
+                let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+                context.drawImage(img, 0, 0);
+                context.font = `32px Verdana`
+                if(serverPoint !== undefined && serverPoint !== null){
+
+                    for(const line of serverPoint["lines"]){
+                        const startName = getPointByName(line["start"], serverPoint);
+                        const endName = getPointByName(line["end"], serverPoint);
+
+                        const distance = getRealDistance({
+                            "x" : startName["x"]/scale,
+                            "y" : startName["y"]/scale
+                        }, {
+                            "x" : endName["x"]/scale,
+                            "y" : endName["y"]/scale
+                        }) + " mm";
+                        if(startName === null) continue;
+                        if(endName === null) continue;
+                        const color = line["color"];
+                        context.beginPath();
+                        context.moveTo(startName["x"]/scale, startName["y"]/scale);
+                        context.lineTo(endName["x"]/scale, endName["y"]/scale);
+                        context.strokeStyle = color;
+                        context.lineWidth = 8;
+                        context.stroke();
+                        context.closePath();
+                        //center location
+                        if (distance !== "0.00 mm"){
+                            const textX = startName["x"]/scale + (endName["x"]/scale - startName["x"]/scale)/2;
+                            const textY = startName["y"]/scale + (endName["y"]/scale - startName["y"]/scale)/2;
+                            context.beginPath();
+                            context.lineWidth = 3;
+                            context.fillStyle = line["color"];
+                            context.fillText(distance, textX, textY-20)
+                            context.closePath();
+                        }
+                    }
+                    for(const angle of serverPoint["angles"]){
+                        context.beginPath();
+                        context.globalCompositeOperation = "source-over";
+                        const center = {
+                            "x" : angle["center"]["x"] * 1,
+                            "y" : angle["center"]["y"] * 1
+                        }
+                        const p1 = {
+                            "x" : angle["p1"]["x"] * 1,
+                            "y" : angle["p1"]["y"] * 1
+                        }
+                        const degree = angle["angle"]
+                        const rel_x = p1["x"] - center["x"];
+                        const rel_y = p1["y"] - center["y"];
+                        const radius = Math.sqrt(Math.pow(rel_x, 2) + Math.pow(rel_y, 2));
+                        const startAngle = Math.asin(rel_y / radius) - (Math.PI / 2);
+                        const endAngle = startAngle + (degree * Math.PI / 180);
+                        context.lineWidth = 8
+                        context.arc(center["x"], center["y"], radius, startAngle, endAngle, false);
+                        context.strokeStyle = "red";
+                        context.stroke();
+                        context.closePath();
+
+                        const centerAngle = startAngle + (degree/2 * Math.PI / 180);
+                        const angleTextX = center["x"] + radius * Math.cos(centerAngle);
+                        const angleTextY = center["y"] + radius * Math.sin(centerAngle);
+                        context.beginPath();
+                        context.lineWidth = 3;
+                        context.fillStyle = "red";
+                        context.fillText(degree + "°", angleTextX+20, angleTextY-30)
+                        context.strokeStyle = "red";
+                        context.strokeText(degree + "°", angleTextX+20, angleTextY-30)
+                        context.closePath();
+
+                    }
+                    for (const point of serverPoint["predicted"]) {
+                        context.beginPath();
+                        context.globalCompositeOperation = "source-over";
+                        context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
+                        context.fillStyle = "red";
+                        context.fill();
+                        context.closePath();
+                        context.beginPath();
+                        context.lineWidth = 3;
+                        if (point["name"] !== undefined && point["name"] !== null) {
+                            context.fillStyle = "red";
+                            context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
+                            context.strokeStyle = "red";
+                            context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
+                        }
+                        context.closePath();
+                    }
+                    for (const point of serverPoint["normal"]) {
+                        context.beginPath();
+                        context.globalCompositeOperation = "source-over";
+                        context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
+                        context.fillStyle = "blue";
+                        context.fill();
+                        context.closePath();
+                        context.beginPath();
+                        context.lineWidth = 3;
+                        if (point["name"] !== undefined && point["name"] !== null) {
+                            context.fillStyle = "blue";
+                            context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
+                            context.strokeStyle = "blue";
+                            context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
+                        }
+                        context.closePath();
+                    }
+                }
+
+
+                for (const point of points) {
+                    context.beginPath();
+                    context.globalCompositeOperation = "source-over";
+                    context.arc(point["x"] / scale, point["y"] / scale, 8, 0, 2 * Math.PI, false);
+                    context.fillStyle = "orange";
+                    context.fill();
+                    context.closePath();
+                }
+
+            }
+            setLoadedProcessorImage(img);
+        }
+
+
+    }
 
     const drawPointAtCanvas = () =>{
         const context = canvasRef.current.getContext("2d");
         context.font = `10px Verdana`;
-        for(const point of points){
-            context.beginPath();
-            context.globalCompositeOperation = "source-over";
-            context.arc(point["x"], point["y"], 3, 0, 2 * Math.PI, false);
-            context.fillStyle = "orange";
-            context.fill();
-            context.closePath();
+        if(filterCheck["USER"]){
+            for(const point of points){
+                let visible = filterCheck[point["type"]];
+                if(visible === undefined || visible === null) visible = true;
+                if(visible){
+                    context.beginPath();
+                    context.globalCompositeOperation = "source-over";
+                    context.arc(point["x"], point["y"], 3, 0, 2 * Math.PI, false);
+                    context.fillStyle = "orange";
+                    context.fill();
+                    context.closePath();
+                }
+            }
         }
-
         if(serverPoint !== undefined && serverPoint !== null){
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
             for(const line of serverPoint["lines"]){
                 const startName = getPointByName(line["start"]);
                 const endName = getPointByName(line["end"]);
+                const distance = getRealDistance({
+                    "x" : startName["x"] / scale,
+                    "y" : startName["y"] / scale
+                }, {
+                    "x" : endName["x"] / scale,
+                    "y" : endName["y"] / scale
+                }) + " mm";
                 if(startName === null) continue;
                 if(endName === null) continue;
                 const color = line["color"];
@@ -119,6 +422,17 @@ export default (props) => {
                 context.lineWidth = 3;
                 context.stroke();
                 context.closePath();
+
+                //center location
+                if (distance !== "0.00 mm"){
+                    const textX = startName["x"] + (endName["x"] - startName["x"])/2;
+                    const textY = startName["y"] + (endName["y"] - startName["y"])/2;
+                    context.beginPath();
+                    context.lineWidth = 1;
+                    context.fillStyle = line["color"];
+                    context.fillText(distance, textX, textY-5)
+                    context.closePath();
+                }
             }
             for(const angle of serverPoint["angles"]){
                 context.beginPath();
@@ -155,40 +469,53 @@ export default (props) => {
                 context.closePath();
 
             }
-            for(const point of serverPoint["predicted"]){
-                context.beginPath();
-                context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
-                context.fillStyle = "red";
-                context.fill();
-                context.closePath();
-                context.beginPath();
-                context.lineWidth = 1;
-                if(point["name"] !== undefined && point["name"] !== null){
-                    context.fillStyle = "red";
-                    context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
-                    context.strokeStyle = "red";
-                    context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+            if(filterCheck["PREDICTED"]){
+                for(const point of serverPoint["predicted"]){
+                    let visible = filterCheck[point["type"]];
+                    if(visible === undefined || visible === null) visible = true;
+                    if(visible){
+                        context.beginPath();
+                        context.globalCompositeOperation = "source-over";
+                        context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                        context.fillStyle = "red";
+                        context.fill();
+                        context.closePath();
+                        context.beginPath();
+                        context.lineWidth = 1;
+                        if(point["name"] !== undefined && point["name"] !== null){
+                            context.fillStyle = "red";
+                            context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)-10);
+                            context.strokeStyle = "red";
+                            context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)-10)
+                        }
+                        context.closePath();
+                    }
                 }
-                context.closePath();
             }
-            for(const point of serverPoint["normal"]){
-                context.beginPath();
-                context.globalCompositeOperation = "source-over";
-                context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
-                context.fillStyle = "blue";
-                context.fill();
-                context.closePath();
-                context.beginPath();
-                context.lineWidth = 1;
-                if(point["name"] !== undefined && point["name"] !== null){
-                    context.fillStyle = "blue";
-                    context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
-                    context.strokeStyle = "blue";
-                    context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+            if(filterCheck["NORMAL"]){
+                for(const point of serverPoint["normal"]){
+                    let visible = filterCheck[point["type"]];
+                    if(visible === undefined || visible === null) visible = true;
+                    if(visible){
+                        context.beginPath();
+                        context.globalCompositeOperation = "source-over";
+                        context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                        context.fillStyle = "blue";
+                        context.fill();
+                        context.closePath();
+                        context.beginPath();
+                        context.lineWidth = 1;
+                        if(point["name"] !== undefined && point["name"] !== null){
+                            context.fillStyle = "blue";
+                            context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)-10);
+                            context.strokeStyle = "blue";
+                            context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)-10)
+                        }
+                        context.closePath();
+                    }
                 }
-                context.closePath();
             }
+
         }
     }
 
@@ -229,6 +556,12 @@ export default (props) => {
         return null;
     }
 
+    const getRealDistance = (point1, point2) => {
+        const dx = Math.pow(point1["x"] - point2["x"], 2);
+        const dy = Math.pow(point1["y"] - point2["y"], 2);
+        return (Math.sqrt(dx+dy) * props.pixelDistance * 10).toFixed(2);
+    }
+
     useEffect(()=>{
         if(props.img === "") return;
         var sendData = JSON.stringify({
@@ -263,6 +596,9 @@ export default (props) => {
 
 
     const savePoints = () => {
+        if(props.selected === -1) return;
+        if(serverPoint === undefined) return;
+        if(serverPoint === null) return;
         const userPointScaled = [];
         let scale = (imgRef.current.height / imgRef.current.naturalHeight);
         for(let p of points){
@@ -292,9 +628,11 @@ export default (props) => {
         });
     }
 
+    useEffect(savePoints, [points]);
+
     const drawPoint = (x, y) => {
         setPoints([...points, {"x":x, "y":y, "name":""}]);
-        savePoints();
+
     }
 
     const removePoint = (x, y) => {
@@ -319,19 +657,47 @@ export default (props) => {
         setFilterCheck({
             ...filterCheck,
             [type]: checked
-        })
+        });
+    }
+
+    const filterRenderer = () => {
+        const filternames = ['NORMAL', 'USER', 'PREDICTED', 'U1NA', 'L1NB', 'U1L1', 'L1CHIN'];
+        const result = [];
+        for(let i = 0; i < filternames.length; i ++){
+            result.push(<Form.Check className="me-3" key={i} label={filternames[i]} checked={filterCheck[filternames[i]]} onChange={(e) => changeFilterCheck(filternames[i], e.target.checked)}/>)
+        }
+        return result;
+    }
+
+    const filterAllCheck = (_) => {
+        setFilterCheck({
+            "NORMAL" : true,
+            "USER": true,
+            "PREDICTED" : true,
+            "U1NA" : true,
+            "L1NB" : true,
+            "U1L1" : true,
+            "L1CHIN" : true
+        });
     }
 
 
     return <>
+        <canvas
+            ref={wideCanvasRef}
+            className="position-absolute w-25 h-25 border border-white z-3"
+            style={isInCanvas ? {top:(mouseY+10)+"px", left:(mouseX+10)+"px"} : {top:(mouseY+10)+"px", left:(mouseX+10)+"px",display: "none"}}>
+
+        </canvas>
+        <canvas ref={processor} style={{display: "none"}}/>
         <Container className="d-flex justify-content-around align-item-center h-100 flex-column" style={{width:"73%"}}>
 
             <Container className="d-flex justify-content-between align-items-center">
-                <Form.Check checked={edit} label="Edit Mode" onChange={(e)=>setEdit(e.target.checked)}/>
-                <div className="d-flex align-items-center">
-                    {/*{filterRenderer()}*/}
+                <Form.Check checked={edit} label="Edit" onChange={(e)=>setEdit(e.target.checked)}/>
+                <div className="d-flex align-items-center overflow-auto">
+                    {filterRenderer()}
                     {/*TODO*/}
-                    <Button className="me-2" size="sm">Select All</Button>
+                    <Button className="me-2" size="sm" onClick={filterAllCheck}>All</Button>
                 </div>
             </Container>
             <Container className="w-100 position-relative" style={{height:"80%"}}>

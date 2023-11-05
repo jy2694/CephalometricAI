@@ -119,13 +119,13 @@ export default (props) => {
                 headers: {'Content-type': 'application/json'}
             }).then((res)=>{
                 let serverPoint = res.data;
-                context.font = `13px Verdana`;
+                context.font = `28px Verdana`;
                 let scale= 1;
 
                 for(const point of serverPoint["user"]){
                     context.beginPath();
                     context.globalCompositeOperation = "source-over";
-                    context.arc(point["x"], point["y"], 3 , 0, 2 * Math.PI, false);
+                    context.arc(point["x"], point["y"], 8 , 0, 2 * Math.PI, false);
                     context.fillStyle = "orange";
                     context.fill();
                     context.closePath();
@@ -134,6 +134,13 @@ export default (props) => {
                 for(const line of serverPoint["lines"]){
                     const startName = getPointByName(line["start"], serverPoint);
                     const endName = getPointByName(line["end"], serverPoint);
+                    const distance = getRealDistance({
+                        "x" : startName["x"] / scale,
+                        "y" : startName["y"] / scale
+                    }, {
+                        "x" : endName["x"] / scale,
+                        "y" : endName["y"] / scale
+                    }) + " mm";
                     if(startName === null) continue;
                     if(endName === null) continue;
                     const color = line["color"];
@@ -141,9 +148,19 @@ export default (props) => {
                     context.moveTo(startName["x"], startName["y"]);
                     context.lineTo(endName["x"], endName["y"]);
                     context.strokeStyle = color;
-                    context.lineWidth = 3;
+                    context.lineWidth = 8;
                     context.stroke();
                     context.closePath();
+                    //center location
+                    if (distance !== "0.00 mm"){
+                        const textX = startName["x"] + (endName["x"] - startName["x"])/2;
+                        const textY = startName["y"] + (endName["y"] - startName["y"])/2;
+                        context.beginPath();
+                        context.lineWidth = 3;
+                        context.fillStyle = line["color"];
+                        context.fillText(distance, textX, textY-20)
+                        context.closePath();
+                    }
                 }
                 for(const angle of serverPoint["angles"]){
                     context.beginPath();
@@ -162,7 +179,7 @@ export default (props) => {
                     const radius = Math.sqrt(Math.pow(rel_x, 2) + Math.pow(rel_y, 2));
                     const startAngle = Math.asin(rel_y / radius) - (Math.PI / 2);
                     const endAngle = startAngle + (degree * Math.PI / 180);
-                    context.lineWidth = 3
+                    context.lineWidth = 8
                     context.arc(center["x"], center["y"], radius, startAngle, endAngle, false);
                     context.strokeStyle = "red";
                     context.stroke();
@@ -172,51 +189,57 @@ export default (props) => {
                     const angleTextX = center["x"] + radius * Math.cos(centerAngle);
                     const angleTextY = center["y"] + radius * Math.sin(centerAngle);
                     context.beginPath();
-                    context.lineWidth = 1;
+                    context.lineWidth = 3;
                     context.fillStyle = "red";
-                    context.fillText(degree + "°", angleTextX+5, angleTextY+5)
+                    context.fillText(degree + "°", angleTextX+20, angleTextY-30)
                     context.strokeStyle = "red";
-                    context.strokeText(degree + "°", angleTextX+5, angleTextY+5)
+                    context.strokeText(degree + "°", angleTextX+20, angleTextY-30)
                     context.closePath();
 
                 }
                 for(const point of serverPoint["predicted"]){
                     context.beginPath();
                     context.globalCompositeOperation = "source-over";
-                    context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                    context.arc(point["x"]*scale, point["y"]*scale, 8, 0, 2 * Math.PI, false);
                     context.fillStyle = "red";
                     context.fill();
                     context.closePath();
                     context.beginPath();
-                    context.lineWidth = 1;
+                    context.lineWidth = 3;
                     if(point["name"] !== undefined && point["name"] !== null){
                         context.fillStyle = "red";
-                        context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
+                        context.fillText(point["name"], (point["x"]*scale)+20, (point["y"]*scale)-30);
                         context.strokeStyle = "red";
-                        context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+                        context.strokeText(point["name"], (point["x"]*scale)+20, (point["y"]*scale)-30)
                     }
                     context.closePath();
                 }
                 for(const point of serverPoint["normal"]){
                     context.beginPath();
                     context.globalCompositeOperation = "source-over";
-                    context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
+                    context.arc(point["x"]*scale, point["y"]*scale, 8, 0, 2 * Math.PI, false);
                     context.fillStyle = "blue";
                     context.fill();
                     context.closePath();
                     context.beginPath();
-                    context.lineWidth = 1;
+                    context.lineWidth = 3;
                     if(point["name"] !== undefined && point["name"] !== null){
                         context.fillStyle = "blue";
-                        context.fillText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5);
+                        context.fillText(point["name"], (point["x"]*scale)+20, (point["y"]*scale)-30);
                         context.strokeStyle = "blue";
-                        context.strokeText(point["name"], (point["x"]*scale)+5, (point["y"]*scale)+5)
+                        context.strokeText(point["name"], (point["x"]*scale)+20, (point["y"]*scale)-30)
                     }
                     context.closePath();
                 }
                 setDownloadReady(true);
             }).catch(_=>{});
         }
+    }
+
+    const getRealDistance = (point1, point2) => {
+        const dx = Math.pow(point1["x"] - point2["x"], 2);
+        const dy = Math.pow(point1["y"] - point2["y"], 2);
+        return (Math.sqrt(dx+dy) * props.pixelDistance * 10).toFixed(2);
     }
 
     useEffect(()=>{

@@ -62,4 +62,8 @@ public class MemberService {
             sessionManager.getSessionKey().remove(memberId);
         }
     }
+
+    public void save(Member member){
+        memberRepository.save(member);
+    }
 }

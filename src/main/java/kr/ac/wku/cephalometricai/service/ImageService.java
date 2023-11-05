@@ -127,6 +127,10 @@ public class ImageService {
         Image image = imageOptional.get();
         Path path = Paths.get(privateCloudProperties.getPath()+"/"+image.getOwner().toString()).resolve(image.getSystemPath());
         Files.delete(path);
+        String jsonName = image.getSystemPath().substring(0, image.getSystemPath().lastIndexOf('.'));
+        Path jsonPath = Paths.get(privateCloudProperties.getPath()+"/"+image.getOwner().toString()).resolve(jsonName + ".json");
+        if(Files.exists(jsonPath))
+            Files.delete(jsonPath);
         imageRepository.deleteById(id);
     }
 }

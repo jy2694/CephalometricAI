@@ -97,7 +97,7 @@ public class PrivateCloudProperties {
         UUID uuid = image.getOwner();
         String fileUUID = image.getSystemPath().substring(0, image.getSystemPath().indexOf('.'));
         File jsonFile = new File(path + "/" + uuid.toString() + "/" + fileUUID + ".json");
-        if(!jsonFile.exists()) jsonFile.createNewFile();
+        if(!jsonFile.exists()) return;
         JSONObject object = new JSONObject();
         JSONArray predictedArray = new JSONArray();
         JSONArray normalArray = new JSONArray();

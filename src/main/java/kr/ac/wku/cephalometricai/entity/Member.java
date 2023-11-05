@@ -22,4 +22,6 @@ public class Member {
 
     @Column(nullable = false)
     private String name;
+
+    private Float scaleByPixel;
 }

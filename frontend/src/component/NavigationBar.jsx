@@ -61,6 +61,9 @@ export default (props) => {
             setShow(true);
             setFolderEnable(true);
             }}>Import folder</Nav.Link>
+          <Nav.Link onClick={()=>props.setDistanceModal(true)}>
+              Distance by pixel
+          </Nav.Link>
         </Nav>
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
