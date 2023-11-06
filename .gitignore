@@ -51,7 +51,3 @@ BackEnd/build
 BackEnd/cloud
 BackEnd/.idea
 BackEnd/.gradle
-
-### TMP ###
-
-AI/model/model.pth
