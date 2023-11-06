@@ -63,7 +63,7 @@ class Model:
         self.aaa = ['s', 'n']
 
         self.model = net.UNet(1, 38).to(self.device_txt)
-        self.model.load_state_dict(torch.load('./net_1.3920683841206483e-06_E_709.pth', map_location=self.device_txt))
+        self.model.load_state_dict(torch.load('./model/model.pth', map_location=self.device_txt))
         self.H = 800
         self.W = 640
 
