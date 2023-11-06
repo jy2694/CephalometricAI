@@ -22,20 +22,20 @@ Increase convenience.
   * 역할 기재
 * **황현성**
   * **원광대학교 컴퓨터소프트웨어공학과**
-  * 
+  * 역할 기재
 * **한승용**
   * **원광대학교 컴퓨터소프트웨어공학과**
   * 역할 기재
 * **김제연**
   * **원광대학교 컴퓨터소프트웨어공학과**
   * 데이터베이스 설계(100%)
-  * Backend-Frontend 통신 구현(70%)
+  * Backend-Frontend 통신 구현(80%)
   * Backend 구현(80%)
-  * Frontend 구현(20%)
+  * Frontend 구현(50%)
 * **방현우**
   * **원광대학교 컴퓨터소프트웨어공학과**
-  * Frontend-Backend 통신 구현(30%)
-  * Frontend 구현(80%)
+  * Frontend-Backend 통신 구현(20%)
+  * Frontend 구현(50%)
   * Backend 구현(20%)
 
 ---
@@ -65,8 +65,8 @@ Increase convenience.
 
 ### 3. Artificial Intelligence
 
-![Python](https://img.shields.io/badge/Python-Version-3776AB?logo=python)
+![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python)
 
-![PyTorch](https://img.shields.io/badge/PyTorch-Version-EE4C2C?logo=pytorch)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-EE4C2C?logo=pytorch)
 
 

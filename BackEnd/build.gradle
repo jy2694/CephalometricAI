@@ -35,3 +35,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+bootJar {
+	mainClass = 'kr.ac.wku.cephalometricai.CephalometricAiApplication'
+}
