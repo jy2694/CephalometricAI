@@ -44,4 +44,10 @@ out/
 
 ### MAC OS ###
 .DS_Store
-frontend/.DS_Store
+FrontEnd/.DS_Store
+
+### BACKEND ###
+BackEnd/build
+BackEnd/cloud
+BackEnd/.idea
+BackEnd/.gradle

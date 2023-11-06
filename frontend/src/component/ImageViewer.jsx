@@ -259,14 +259,29 @@ export default (props) => {
     }
 
     const filterChecking = (filter) => {
-        if(filter === undefined || filter === null) return true;
+        const filtertype = ["NORMAL", "USER", "PREDICTED", "U1NA", "L1NB", "U1L1", "L1CHIN"];
+        if(filter === undefined || filter === null || filter === ""){
+            for(let i = 0; i < filtertype.length; i ++){
+                if(!filterCheck[filtertype[i]])
+                    return false;
+            }
+            return true;
+        }
         let filters = filter.split(",");
         for(let i = 0; i < filters.length; i ++){
             let v = filterCheck[filters[i]];
-            if(v === null || v === undefined) v = true;
-            if(!v) return false;
+            if(v === null || v === undefined){
+                for(let i = 0; i < filtertype.length; i ++){
+                    if(!filterCheck[filtertype[i]]) {
+                        v = false;
+                        break;
+                    }
+                }
+                v = true;
+            }
+            if(v) return true;
         }
-        return true;
+        return false;
     }
 
     const loadProcessorCanvas = () => {
@@ -277,7 +292,7 @@ export default (props) => {
         img.onload = () => {
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
             context.drawImage(img, 0, 0);
-            context.font = `32px Verdana`
+            context.font = `40px Verdana`
             if(serverPoint !== undefined && serverPoint !== null){
                 for(const line of serverPoint["lines"]){
                     if(filterChecking(line["type"])){
@@ -307,8 +322,10 @@ export default (props) => {
                             const textY = startName["y"]/scale + (endName["y"]/scale - startName["y"]/scale)/2;
                             context.beginPath();
                             context.lineWidth = 3;
+                            context.strokeStyle = line["color"];
                             context.fillStyle = line["color"];
-                            context.fillText(distance, textX, textY-20)
+                            context.fillText(distance, textX, textY+20);
+                            context.strokeText(distance, textX, textY+20);
                             context.closePath();
                         }
                     }
