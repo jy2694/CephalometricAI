@@ -96,7 +96,7 @@ export default (props) => {
         }
         if(endX === imgRef.current.naturalWidth){
             let mousePercent = (imgRef.current.width - canvasMouseX) / (wideCanvasRef.current.width/2);
-            mousePercent -= 1;
+            mousePercent %= 1;
             if(mousePercent < 0) mousePercent = 0;
             pointerX = wideCanvasRef.current.width + (wideCanvasRef.current.width/2 * -mousePercent);
         }
@@ -133,15 +133,15 @@ export default (props) => {
             context.drawImage(wideCanvasImage, startX, startY, endX-startX, endY-startY, 0, 0, wideCanvasRef.current.width, wideCanvasRef.current.height);
             context.beginPath();
             context.rect(pointerX-pointerSize, pointerY-1, pointerSize*2, 2);
-            context.fillStyle="black"
-            context.strokeStyle="dimgray"
+            context.fillStyle="black";
+            context.strokeStyle="dimgray";
             context.fill();
             context.stroke();
             context.closePath();
             context.beginPath();
             context.rect(pointerX-1, pointerY-pointerSize, 2, pointerSize*2);
-            context.fillStyle="black"
-            context.strokeStyle="dimgray"
+            context.fillStyle="black";
+            context.strokeStyle="dimgray";
             context.fill();
             context.stroke();
             context.closePath();
@@ -239,11 +239,12 @@ export default (props) => {
                 drawPointAtCanvas();
             }, 250));
         }
-
     }, [points, filterCheck, props.pixelDistance]);
 
-
-
+    useEffect(() => {
+        if(edit) return;
+        loadProcessorCanvas();
+    }, [filterCheck]);
 
     const drawPointAtProcessorCanvas = () => {
         if(processor === null) return;
@@ -252,18 +253,34 @@ export default (props) => {
         if(imgRef.current.naturalWidth === 0) return;
         processor.current.width = imgRef.current.naturalWidth;
         processor.current.height = imgRef.current.naturalHeight;
-        const context = processor.current.getContext("2d");
         if(edit || (loadedProcessorImage === null || loadedProcessorImage.src !== props.img)){
-            const img = new Image();
-            img.crossOrigin = 'Anonymous'
-            img.src = props.img;
-            img.onload = () => {
-                let scale = (imgRef.current.height / imgRef.current.naturalHeight);
-                context.drawImage(img, 0, 0);
-                context.font = `32px Verdana`
-                if(serverPoint !== undefined && serverPoint !== null){
+            loadProcessorCanvas();
+        }
+    }
 
-                    for(const line of serverPoint["lines"]){
+    const filterChecking = (filter) => {
+        if(filter === undefined || filter === null) return true;
+        let filters = filter.split(",");
+        for(let i = 0; i < filters.length; i ++){
+            let v = filterCheck[filters[i]];
+            if(v === null || v === undefined) v = true;
+            if(!v) return false;
+        }
+        return true;
+    }
+
+    const loadProcessorCanvas = () => {
+        const context = processor.current.getContext("2d");
+        const img = new Image();
+        img.crossOrigin = 'Anonymous'
+        img.src = props.img;
+        img.onload = () => {
+            let scale = (imgRef.current.height / imgRef.current.naturalHeight);
+            context.drawImage(img, 0, 0);
+            context.font = `32px Verdana`
+            if(serverPoint !== undefined && serverPoint !== null){
+                for(const line of serverPoint["lines"]){
+                    if(filterChecking(line["type"])){
                         const startName = getPointByName(line["start"], serverPoint);
                         const endName = getPointByName(line["end"], serverPoint);
 
@@ -295,7 +312,9 @@ export default (props) => {
                             context.closePath();
                         }
                     }
-                    for(const angle of serverPoint["angles"]){
+                }
+                for(const angle of serverPoint["angles"]){
+                    if(filterChecking(angle["type"])){
                         context.beginPath();
                         context.globalCompositeOperation = "source-over";
                         const center = {
@@ -328,59 +347,65 @@ export default (props) => {
                         context.strokeStyle = "red";
                         context.strokeText(degree + "°", angleTextX+20, angleTextY-30)
                         context.closePath();
-
                     }
+                }
+                if(filterCheck["PREDICTED"]){
                     for (const point of serverPoint["predicted"]) {
-                        context.beginPath();
-                        context.globalCompositeOperation = "source-over";
-                        context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
-                        context.fillStyle = "red";
-                        context.fill();
-                        context.closePath();
-                        context.beginPath();
-                        context.lineWidth = 3;
-                        if (point["name"] !== undefined && point["name"] !== null) {
+                        if(filterChecking(point["type"])){
+                            context.beginPath();
+                            context.globalCompositeOperation = "source-over";
+                            context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
                             context.fillStyle = "red";
-                            context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
-                            context.strokeStyle = "red";
-                            context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
+                            context.fill();
+                            context.closePath();
+                            context.beginPath();
+                            context.lineWidth = 3;
+                            if (point["name"] !== undefined && point["name"] !== null) {
+                                context.fillStyle = "red";
+                                context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
+                                context.strokeStyle = "red";
+                                context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
+                            }
+                            context.closePath();
                         }
-                        context.closePath();
                     }
+                }
+                if(filterCheck["NORMAL"]){
                     for (const point of serverPoint["normal"]) {
+                        if(filterChecking(point["type"])){
+                            context.beginPath();
+                            context.globalCompositeOperation = "source-over";
+                            context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
+                            context.fillStyle = "blue";
+                            context.fill();
+                            context.closePath();
+                            context.beginPath();
+                            context.lineWidth = 3;
+                            if (point["name"] !== undefined && point["name"] !== null) {
+                                context.fillStyle = "blue";
+                                context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
+                                context.strokeStyle = "blue";
+                                context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
+                            }
+                            context.closePath();
+                        }
+                    }
+                }
+            }
+            if(filterCheck["USER"]){
+                for (const point of points) {
+                    if(filterChecking(point["type"])){
                         context.beginPath();
                         context.globalCompositeOperation = "source-over";
-                        context.arc(point["x"] * 1, point["y"] * 1, 8, 0, 2 * Math.PI, false);
-                        context.fillStyle = "blue";
+                        context.arc(point["x"] / scale, point["y"] / scale, 8, 0, 2 * Math.PI, false);
+                        context.fillStyle = "orange";
                         context.fill();
-                        context.closePath();
-                        context.beginPath();
-                        context.lineWidth = 3;
-                        if (point["name"] !== undefined && point["name"] !== null) {
-                            context.fillStyle = "blue";
-                            context.fillText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30);
-                            context.strokeStyle = "blue";
-                            context.strokeText(point["name"], (point["x"] * 1) + 20, (point["y"] * 1) - 30)
-                        }
                         context.closePath();
                     }
                 }
-
-
-                for (const point of points) {
-                    context.beginPath();
-                    context.globalCompositeOperation = "source-over";
-                    context.arc(point["x"] / scale, point["y"] / scale, 8, 0, 2 * Math.PI, false);
-                    context.fillStyle = "orange";
-                    context.fill();
-                    context.closePath();
-                }
-
             }
-            setLoadedProcessorImage(img);
         }
-
-
+        setLoadedProcessorImage(img);
     }
 
     const drawPointAtCanvas = () =>{
@@ -388,9 +413,7 @@ export default (props) => {
         context.font = `10px Verdana`;
         if(filterCheck["USER"]){
             for(const point of points){
-                let visible = filterCheck[point["type"]];
-                if(visible === undefined || visible === null) visible = true;
-                if(visible){
+                if(filterChecking(point["type"])){
                     context.beginPath();
                     context.globalCompositeOperation = "source-over";
                     context.arc(point["x"], point["y"], 3, 0, 2 * Math.PI, false);
@@ -403,77 +426,78 @@ export default (props) => {
         if(serverPoint !== undefined && serverPoint !== null){
             let scale = (imgRef.current.height / imgRef.current.naturalHeight);
             for(const line of serverPoint["lines"]){
-                const startName = getPointByName(line["start"]);
-                const endName = getPointByName(line["end"]);
-                const distance = getRealDistance({
-                    "x" : startName["x"] / scale,
-                    "y" : startName["y"] / scale
-                }, {
-                    "x" : endName["x"] / scale,
-                    "y" : endName["y"] / scale
-                }) + " mm";
-                if(startName === null) continue;
-                if(endName === null) continue;
-                const color = line["color"];
-                context.beginPath();
-                context.moveTo(startName["x"], startName["y"]);
-                context.lineTo(endName["x"], endName["y"]);
-                context.strokeStyle = color;
-                context.lineWidth = 3;
-                context.stroke();
-                context.closePath();
-
-                //center location
-                if (distance !== "0.00 mm"){
-                    const textX = startName["x"] + (endName["x"] - startName["x"])/2;
-                    const textY = startName["y"] + (endName["y"] - startName["y"])/2;
+                if(filterChecking(line["type"])){
+                    const startName = getPointByName(line["start"]);
+                    const endName = getPointByName(line["end"]);
+                    const distance = getRealDistance({
+                        "x" : startName["x"] / scale,
+                        "y" : startName["y"] / scale
+                    }, {
+                        "x" : endName["x"] / scale,
+                        "y" : endName["y"] / scale
+                    }) + " mm";
+                    if(startName === null) continue;
+                    if(endName === null) continue;
+                    const color = line["color"];
                     context.beginPath();
-                    context.lineWidth = 1;
-                    context.fillStyle = line["color"];
-                    context.fillText(distance, textX, textY-5)
+                    context.moveTo(startName["x"], startName["y"]);
+                    context.lineTo(endName["x"], endName["y"]);
+                    context.strokeStyle = color;
+                    context.lineWidth = 3;
+                    context.stroke();
                     context.closePath();
+
+                    //center location
+                    if (distance !== "0.00 mm"){
+                        const textX = startName["x"] + (endName["x"] - startName["x"])/2;
+                        const textY = startName["y"] + (endName["y"] - startName["y"])/2;
+                        context.beginPath();
+                        context.lineWidth = 1;
+                        context.fillStyle = line["color"];
+                        context.fillText(distance, textX, textY-5)
+                        context.closePath();
+                    }
                 }
             }
             for(const angle of serverPoint["angles"]){
-                context.beginPath();
-                context.globalCompositeOperation = "source-over";
-                const center = {
-                    "x" : angle["center"]["x"] * scale,
-                    "y" : angle["center"]["y"] * scale
-                }
-                const p1 = {
-                    "x" : angle["p1"]["x"] * scale,
-                    "y" : angle["p1"]["y"] * scale
-                }
-                const degree = angle["angle"]
-                const rel_x = p1["x"] - center["x"];
-                const rel_y = p1["y"] - center["y"];
-                const radius = Math.sqrt(Math.pow(rel_x, 2) + Math.pow(rel_y, 2));
-                const startAngle = Math.asin(rel_y / radius) - (Math.PI / 2);
-                const endAngle = startAngle + (degree * Math.PI / 180);
-                context.lineWidth = 3
-                context.arc(center["x"], center["y"], radius, startAngle, endAngle, false);
-                context.strokeStyle = "red";
-                context.stroke();
-                context.closePath();
+                if(filterChecking(angle["type"])){
+                    context.beginPath();
+                    context.globalCompositeOperation = "source-over";
+                    const center = {
+                        "x" : angle["center"]["x"] * scale,
+                        "y" : angle["center"]["y"] * scale
+                    }
+                    const p1 = {
+                        "x" : angle["p1"]["x"] * scale,
+                        "y" : angle["p1"]["y"] * scale
+                    }
+                    const degree = angle["angle"]
+                    const rel_x = p1["x"] - center["x"];
+                    const rel_y = p1["y"] - center["y"];
+                    const radius = Math.sqrt(Math.pow(rel_x, 2) + Math.pow(rel_y, 2));
+                    const startAngle = Math.asin(rel_y / radius) - (Math.PI / 2);
+                    const endAngle = startAngle + (degree * Math.PI / 180);
+                    context.lineWidth = 3
+                    context.arc(center["x"], center["y"], radius, startAngle, endAngle, false);
+                    context.strokeStyle = "red";
+                    context.stroke();
+                    context.closePath();
 
-                const centerAngle = startAngle + (degree/2 * Math.PI / 180);
-                const angleTextX = center["x"] + radius * Math.cos(centerAngle);
-                const angleTextY = center["y"] + radius * Math.sin(centerAngle);
-                context.beginPath();
-                context.lineWidth = 1;
-                context.fillStyle = "red";
-                context.fillText(degree + "°", angleTextX+5, angleTextY+5)
-                context.strokeStyle = "red";
-                context.strokeText(degree + "°", angleTextX+5, angleTextY+5)
-                context.closePath();
-
+                    const centerAngle = startAngle + (degree/2 * Math.PI / 180);
+                    const angleTextX = center["x"] + radius * Math.cos(centerAngle);
+                    const angleTextY = center["y"] + radius * Math.sin(centerAngle);
+                    context.beginPath();
+                    context.lineWidth = 1;
+                    context.fillStyle = "red";
+                    context.fillText(degree + "°", angleTextX+5, angleTextY+5)
+                    context.strokeStyle = "red";
+                    context.strokeText(degree + "°", angleTextX+5, angleTextY+5)
+                    context.closePath();
+                }
             }
             if(filterCheck["PREDICTED"]){
                 for(const point of serverPoint["predicted"]){
-                    let visible = filterCheck[point["type"]];
-                    if(visible === undefined || visible === null) visible = true;
-                    if(visible){
+                    if(filterChecking(point["type"])){
                         context.beginPath();
                         context.globalCompositeOperation = "source-over";
                         context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
@@ -494,9 +518,7 @@ export default (props) => {
             }
             if(filterCheck["NORMAL"]){
                 for(const point of serverPoint["normal"]){
-                    let visible = filterCheck[point["type"]];
-                    if(visible === undefined || visible === null) visible = true;
-                    if(visible){
+                    if(filterChecking(point["type"])){
                         context.beginPath();
                         context.globalCompositeOperation = "source-over";
                         context.arc(point["x"]*scale, point["y"]*scale, 3, 0, 2 * Math.PI, false);
