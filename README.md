@@ -15,6 +15,12 @@ Increase convenience.
 
 ---
 
+## System Configuration
+
+![SystemConfiguration](https://github.com/jy2694/CephalometricAI/blob/main/System.png?raw=true)
+
+---
+
 ## Developers
 
 * **최승완(PM)**
