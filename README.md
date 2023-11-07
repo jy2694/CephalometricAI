@@ -14,35 +14,35 @@ This service automates the analysis of dental and skeletal relationships and ena
 Increase convenience.
 
 ---
-
-## System Configuration
+## 시스템 구성도
+### System Configuration
 
 ![SystemConfiguration](https://github.com/jy2694/CephalometricAI/blob/main/System.png?raw=true)
 
 ---
-
-## Developers
+## 개발자
+### Developers
 
 * **최승완(PM)**
-  * **원광대학교 컴퓨터소프트웨어공학과**
+  * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
   * 역할 기재
 * **황현성**
-  * **원광대학교 컴퓨터소프트웨어공학과**
+  * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
   * 역할 기재
 * **한승용**
-  * **원광대학교 컴퓨터소프트웨어공학과**
+  * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
   * 역할 기재
 * **김제연**
-  * **원광대학교 컴퓨터소프트웨어공학과**
-  * 데이터베이스 설계(100%)
-  * Backend-Frontend 통신 구현(80%)
-  * Backend 구현(80%)
-  * Frontend 구현(50%)
+  * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
+  * 데이터베이스 설계(Database Design, 100%)
+  * HTTP 통신 구현(HTTP Communication Implement, 80%)
+  * Backend 구현(Backend Implement, 80%)
+  * Frontend 구현(Frontend Implement, 50%)
 * **방현우**
-  * **원광대학교 컴퓨터소프트웨어공학과**
-  * Frontend-Backend 통신 구현(20%)
-  * Frontend 구현(50%)
-  * Backend 구현(20%)
+  * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
+  * HTTP 통신 구현(HTTP Communication Implement, 20%)
+  * Frontend 구현(Frontend Implement, 50%)
+  * Backend 구현(Backend Implement, 20%)
 
 ---
 
