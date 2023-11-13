@@ -4,11 +4,11 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from model import Model
 
+
 class Target:
     def __init__(self):
         self.observer = Observer()
         self.watchDir = '../BackEnd/cloud'
-
 
     def run(self):
         event_handler = Handler()
@@ -34,18 +34,17 @@ class Handler(FileSystemEventHandler, Model):
         pass
 
     def on_moved(self, event):
-        print(event)
+        pass
 
     def on_created(self, event):
         print(event)
         format_index = event.src_path.rfind('.')
         if event.src_path[format_index + 1:] == 'png':
-            # event.src_path.replace("\")
             super().predict(event.src_path)
             super().write_json(event.src_path[:format_index + 1])
 
     def on_deleted(self, event):
-        print(event)
+        pass
 
     def on_modified(self, event):
         pass
