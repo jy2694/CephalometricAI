@@ -51,3 +51,6 @@ BackEnd/build
 BackEnd/cloud
 BackEnd/.idea
 BackEnd/.gradle
+
+### AI ###
+/AI/train-gt.json

@@ -30,15 +30,6 @@ class dataload(Dataset):
         elif mode == 'dir':
             self.path = glob.glob(path + '/*.png')
             self.data_num = len(self.path)
-        # self.mask_num = int(len(self.dinfo.classes))  # 20
-        # # print(self.mask_num)
-        # # print(self.mask_num)
-        # # print(self.data_num)
-        # self.path_mtx = np.array(self.dinfo.samples)[:, :1].reshape(self.mask_num,
-        #                                                             self.data_num)  ## all data path loading  [ masks  20 , samples 150]
-        # self.images = [Image.open(path) for path in self.path_mtx.reshape(-1)]  # all image loading
-        # self.path1D = self.path_mtx.reshape(-1)  # all image path list
-        # print(self.path_mtx)
 
         self.aug = aug
         self.pow_n = pow_n
@@ -67,20 +58,6 @@ class dataload(Dataset):
         return self.data_num
 
     def __getitem__(self, idx):
-        # mask = torch.empty(self.mask_num, self.H, self.W, dtype=torch.float)  # 150 * H * W
-        # if self.aug == True:
-        #     self.mask_trans.transforms[2].degrees = random.randrange(-25, 25)
-        #     self.mask_trans.transforms[2].translate = [random.uniform(0, 0.05), random.uniform(0, 0.05)]
-        #     self.mask_trans.transforms[2].scale = random.uniform(0.9, 1.1)
-
-        # for k in range(0, self.mask_num):
-        #     X = Image.open(self.path_mtx[k, idx])
-        #     if k == 0 and self.aug == True: X = self.col_trans(X)
-        #     mask[k] = self.mask_trans(X)
-
-        # input, heat = self.norm(mask[0:1]), mask[1:38]
-        # heat = torch.pow(heat, self.pow_n)
-        # heat = heat / heat.max()
         if self.mode == 'img':
             input = Image.open(self.path)
         elif self.mode == 'dir':
@@ -89,12 +66,6 @@ class dataload(Dataset):
         input = self.mask_trans(input)
         input = self.norm(input)
         img_size = input.size()
-        # print(input.shape)
-        # plt.imshow(input[0], cmap='gray');
-        # plt.show()
-        # plt.imshow(heat[0], cmap='gray');
-        # plt.show()
-        # print("idx :", idx, "path ", self.task)
 
         return input
 

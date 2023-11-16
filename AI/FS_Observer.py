@@ -9,6 +9,7 @@ class Target:
     def __init__(self):
         self.observer = Observer()
         self.watchDir = '../BackEnd/cloud'
+        # self.watchDir = './test'
 
     def run(self):
         event_handler = Handler()
