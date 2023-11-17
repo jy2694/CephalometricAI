@@ -78,6 +78,10 @@ class Line:
     def get_y(self, x):
         return self.m * x + self.n
 
+    def get_x(self, y):
+        return (y - self.n) / self.m
+
+
 class Model:
     def __init__(self):
         self.orig_W = None
@@ -153,14 +157,25 @@ class Model:
                 data["predicted"] += [{"x": float(x), "y": float(y), "name": name, "type": types.upper()} for x, y, name in line_point]
 
                 data["line"] += [{"start": line_point[i][2], "end": line_point[i+1][2], "type": types.upper(), "color": "green"} for i in range(0, len(line_point), 2)]
-                print(data["predicted"])
+                # print(data["predicted"])
 
-                angle_point = [center_x + 100, line1.get_y(center_x)] if line1.m < line2.m else [center_x + 100, line2.get_y(center_x)]
+                # 무조건 기울기가 작은 쪽의 점이 시계방향에 있다고 보장하지 못함
+                # angle_point = [center_x + 100, line2.get_y(center_x + 100)] if line1.m < line2.m else [center_x + 100, line1.get_y(center_x + 100)]
+                angle = Line.angle_between_lines(line1.m, line2.m, types)
+                if types == 'u1na':
+                    angle_point = [line2.get_x(center_y - 200), center_y - 200]
+                elif types == 'l1nb':
+                    angle_point = [line1.get_x(center_y - 200), center_y - 200]
+                else:
+                    angle_point = [line1.get_x(center_y + 200), center_y + 200]
                 print("angle", angle_point)
-                data["angle"].append({"center": {"x": float(center_x), "y": float(center_y)}, "p1": {"x": float(angle_point[0]), "y": float(angle_point[1])}, "angle": Line.angle_between_lines(line1.m, line2.m, types), "type": types.upper()})
+
+                print(f'{types}   m:', line1.m, line2.m)
+                data["angle"].append({"center": {"x": float(center_x), "y": float(center_y)}, "p1": {"x": float(angle_point[0]), "y": float(angle_point[1])}, "angle": angle, "type": types.upper()})
+
                 print(data["angle"])
 
             print('----------------------------------------------')
-            print(line_point)
+            # print(line_point)
 
             json.dump(data, outfile)
