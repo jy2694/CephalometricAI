@@ -38,6 +38,7 @@ sdmap = Laplace((points[0]['point'][:2]), sigmaD=std, __coordinateMtx=coordinate
 Heatmap = np.maximum(sdmap, heatmap)
 plt.imsave(f'./test_std10.png', Heatmap * 255, cmap='gray')
 
+# 변형된 라플라스 변환을 사용하여 좌표값을 바탕으로 학습에 사용할 히트맵 생성
 if __name__ == "__main__":
     for i in range(1, 39):
         try:

@@ -135,6 +135,7 @@ public class PrivateCloudProperties {
             BufferedReader br = new BufferedReader(new FileReader(jsonFile));
             StringBuilder sb = new StringBuilder();
             while((line = br.readLine()) != null) sb.append(line);
+            br.close();
             if(sb.isEmpty()) return PointsDTO.empty();
             JSONObject object = (JSONObject) new JSONParser().parse(sb.toString());
 

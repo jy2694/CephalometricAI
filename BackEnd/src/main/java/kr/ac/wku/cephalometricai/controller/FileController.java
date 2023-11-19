@@ -109,7 +109,9 @@ public class FileController {
             return ResponseEntity.status(403).body("Permission Denied.");
         try {
             imageService.deleteImage(dto.getImageId());
-        } catch (IOException ignored) {}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return ResponseEntity.ok().body(imageService.getFiles(member.getId()));
     }
 

@@ -12,17 +12,17 @@ data = {
   "normal": [], # 정상 범주의 점들을 표시함. 녹색으로 표시될 점들임.
   "user": [], #사용자가 찍는 점, 오랜지색으로 표시되며 인공지능에서 생성하지 않아도 됨.
   "predicted": [ #인공지능이 예측한 점, 빨간색으로 표시됨.
-    {
-      "x": 3000.6936, #사진의 해상도 기준 x 좌표
-      "y": 3000.3784, #사진의 해상도 기준 y 좌표
-      "name": "p1", #점의 이름, 직선을 연결할 점이 아니라면 ""로 공백처리 가능.
-      "type": 'U1NA'
-    },
-    {
-      "x": 1000.6936,
-      "y": 1000.3784,
-      "name": "p2",
-    }
+    # {
+    #   "x": 3000.6936, #사진의 해상도 기준 x 좌표
+    #   "y": 3000.3784, #사진의 해상도 기준 y 좌표
+    #   "name": "p1", #점의 이름, 직선을 연결할 점이 아니라면 ""로 공백처리 가능.
+    #   "type": 'U1NA'
+    # },
+    # {
+    #   "x": 1000.6936,
+    #   "y": 1000.3784,
+    #   "name": "p2",
+    # }
   ],
   "line":[ #점과 점 사이를 잇는 직선을 표시함.
     # {
@@ -149,33 +149,27 @@ class Model:
                 line2 = Line(self.pred[self.landmark_name[0].index(point3)], self.pred[self.landmark_name[0].index(point4)])
 
                 center_x, center_y = Line.get_center(line1.m, line2.m, line1.n, line2.n)
-                print(center_x, center_y)
-                print('----------------------------------------------')
+                # print(center_x, center_y)
+                # print('----------------------------------------------')
 
                 line_point = line1.get_line_points(center_x, f'{types}_l1') + line2.get_line_points(center_x, f'{types}_l2')
-                print(line_point)
+                # print(line_point)
                 data["predicted"] += [{"x": float(x), "y": float(y), "name": name, "type": types.upper()} for x, y, name in line_point]
-
                 data["line"] += [{"start": line_point[i][2], "end": line_point[i+1][2], "type": types.upper(), "color": "green"} for i in range(0, len(line_point), 2)]
-                # print(data["predicted"])
 
-                # 무조건 기울기가 작은 쪽의 점이 시계방향에 있다고 보장하지 못함
-                # angle_point = [center_x + 100, line2.get_y(center_x + 100)] if line1.m < line2.m else [center_x + 100, line1.get_y(center_x + 100)]
-                angle = Line.angle_between_lines(line1.m, line2.m, types)
                 if types == 'u1na':
-                    angle_point = [line2.get_x(center_y - 200), center_y - 200]
+                    angle_point = [line2.get_x(center_y - 150), center_y - 150]
                 elif types == 'l1nb':
-                    angle_point = [line1.get_x(center_y - 200), center_y - 200]
+                    angle_point = [line1.get_x(center_y - 150), center_y - 150]
                 else:
-                    angle_point = [line1.get_x(center_y + 200), center_y + 200]
-                print("angle", angle_point)
+                    angle_point = [line1.get_x(center_y + 150), center_y + 150]
 
-                print(f'{types}   m:', line1.m, line2.m)
+                # print("angle", angle_point)
+                # print(f'{types}   m:', line1.m, line2.m)
+                angle = Line.angle_between_lines(line1.m, line2.m, types)
                 data["angle"].append({"center": {"x": float(center_x), "y": float(center_y)}, "p1": {"x": float(angle_point[0]), "y": float(angle_point[1])}, "angle": angle, "type": types.upper()})
 
-                print(data["angle"])
-
-            print('----------------------------------------------')
+                # print(data["angle"])
+            # print('----------------------------------------------')
             # print(line_point)
-
             json.dump(data, outfile)
