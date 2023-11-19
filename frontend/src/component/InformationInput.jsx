@@ -44,7 +44,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url: 'http://localhost:8080/api/file/modify',
+            url: 'http://61.245.248.172:8080/api/file/modify',
             data:sendData,
             headers: {'Content-type': 'application/json'}
         }).then((_)=>{
@@ -55,7 +55,7 @@ export default (props) => {
               });
               axios({
                   method:"POST",
-                  url: 'http://localhost:8080/api/file/list',
+                  url: 'http://61.245.248.172:8080/api/file/list',
                   data:sendData,
                   headers: {'Content-type': 'application/json'}
               }).then((r)=>{
@@ -70,7 +70,7 @@ export default (props) => {
     const onRawDownload = (_) => {
         //TODO - Edit Require
         const data = props.data[props.selected];
-        const url = props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+data["systemPath"];
+        const url = props.selected < 0 ? "" : "http://61.245.248.172:8080/api/files/"+props.session+"/"+data["systemPath"];
         const image = new Image();
         image.crossOrigin = 'Anonymous'
         image.src = url;
@@ -97,7 +97,7 @@ export default (props) => {
     }
 
     const onProcessedDownload = () => {
-        const imageURL = props.selected < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+props.data[props.selected]["systemPath"];
+        const imageURL = props.selected < 0 ? "" : "http://61.245.248.172:8080/api/files/"+props.session+"/"+props.data[props.selected]["systemPath"];
         if(imageURL === "") return;
         const context = props.downloadCanvas.current.getContext("2d");
         const img = new Image ();
@@ -114,7 +114,7 @@ export default (props) => {
             });
             axios({
                 method:"POST",
-                url: 'http://localhost:8080/api/file/points',
+                url: 'http://61.245.248.172:8080/api/file/points',
                 data:sendData,
                 headers: {'Content-type': 'application/json'}
             }).then((res)=>{
