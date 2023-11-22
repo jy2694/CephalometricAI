@@ -95,7 +95,7 @@ export default (props) => {
       const timer = setInterval(() => {
         postImageList();
         setTimerFlag(!timerFlag);
-      }, 10000);
+      }, 2000);
       return () => clearInterval(timer);
     }, [timerFlag]);
 

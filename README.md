@@ -25,13 +25,13 @@ Increase convenience.
 
 * **최승완(PM)**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
-  * 역할 기재
+  * 슈타이너 분석 구현
 * **황현성**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
-  * 역할 기재
+  * 인공지능 모델 학습 및 데이터 전처리
 * **한승용**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
-  * 역할 기재
+  * 데이터 전처리 및 검증
 * **김제연**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
   * 데이터베이스 설계(Database Design, 100%)

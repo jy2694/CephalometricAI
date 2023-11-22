@@ -128,6 +128,7 @@ class Model:
                 inputs = inputs.to(self.device_txt)
 
                 outputs = self.model(inputs)
+                # print(outputs.detach().cpu().numpy().shape)
                 pred = torch.cat([argsoftmax(outputs[0].view(-1, self.H * self.W), y_map, beta=1e-3) * (self.orig_H / self.H),
                                   argsoftmax(outputs[0].view(-1, self.H * self.W), x_map, beta=1e-3) * (self.orig_W / self.W)],
                                  dim=1).detach().cpu()

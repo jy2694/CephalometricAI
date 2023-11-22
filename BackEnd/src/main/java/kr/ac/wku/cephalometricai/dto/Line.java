@@ -13,4 +13,5 @@ public class Line {
     private String end;
     private String color;
     private String type;
+    private boolean display;
 }

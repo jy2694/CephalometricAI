@@ -32,8 +32,7 @@ export default (props) => {
         "PREDICTED": true,
         "U1NA": true,
         "L1NB": true,
-        "U1L1": true,
-        "L1CHIN": true
+        "U1L1": true
     });
 
     const [windowWidth, setWindowWidth] = useState(0);
@@ -262,7 +261,7 @@ export default (props) => {
     }
 
     const filterChecking = (filter) => {
-        const filtertype = ["USER", "PREDICTED", "U1NA", "L1NB", "U1L1", "L1CHIN"];
+        const filtertype = ["USER", "PREDICTED", "U1NA", "L1NB", "U1L1"];
         if (filter === undefined || filter === null || filter === "") {
             for (let i = 2; i < filtertype.length; i++) {
                 if (!filterCheck[filtertype[i]])
@@ -320,7 +319,7 @@ export default (props) => {
                         context.stroke();
                         context.closePath();
                         //center location
-                        if (distance !== "0.00 mm") {
+                        if (distance !== "0.00 mm" && line["display"]) {
                             const textX = startName["x"] / scale + (endName["x"] / scale - startName["x"] / scale) / 2;
                             const textY = startName["y"] / scale + (endName["y"] / scale - startName["y"] / scale) / 2;
                             context.beginPath();
@@ -488,7 +487,7 @@ export default (props) => {
                     context.closePath();
 
                     //center location
-                    if (distance !== "0.00 mm") {
+                    if (distance !== "0.00 mm" && line["display"]) {
                         const textX = startName["x"] + (endName["x"] - startName["x"]) / 2;
                         const textY = startName["y"] + (endName["y"] - startName["y"]) / 2;
                         context.beginPath();
@@ -755,7 +754,7 @@ export default (props) => {
     }
 
     const filterRenderer = () => {
-        const filternames = ['USER', 'PREDICTED', 'U1NA', 'L1NB', 'U1L1', 'L1CHIN'];
+        const filternames = ['USER', 'PREDICTED', 'U1NA', 'L1NB', 'U1L1'];
         const filternameCheck = [];
         const filtername2Check = [];
         for (let i = 0; i < 2; i++) {
@@ -763,7 +762,7 @@ export default (props) => {
                                     checked={filterCheck[filternames[i]]}
                                     onChange={(e) => changeFilterCheck(filternames[i], e.target.checked)}/>);
         }
-        for (let i = 2; i < 6; i ++){
+        for (let i = 2; i < 5; i ++){
             filtername2Check.push(<Form.Check className="m-1" key={i} label={filternames[i]}
             checked={filterCheck[filternames[i]]}
             onChange={(e) => changeFilterCheck(filternames[i], e.target.checked)}/>);

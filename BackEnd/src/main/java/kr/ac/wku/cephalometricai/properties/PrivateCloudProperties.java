@@ -46,6 +46,7 @@ public class PrivateCloudProperties {
         lineObj.put("name", line.getName() == null ? "" : line.getName());
         lineObj.put("color", line.getColor());
         lineObj.put("type", line.getType());
+        lineObj.put("display", line.isDisplay());
         return lineObj;
     }
 
@@ -55,7 +56,8 @@ public class PrivateCloudProperties {
                 lineObj.get("start").toString(),
                 lineObj.get("end").toString(),
                 lineObj.get("color").toString(),
-                lineObj.get("type") == null ? "" : lineObj.get("type").toString()
+                lineObj.get("type") == null ? "" : lineObj.get("type").toString(),
+                lineObj.get("display") != null && Boolean.parseBoolean(lineObj.get("display").toString())
         );
     }
 
