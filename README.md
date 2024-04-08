@@ -34,15 +34,15 @@ Increase convenience.
   * 데이터 전처리 및 검증
 * **김제연**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
-  * 데이터베이스 설계(Database Design, 100%)
-  * HTTP 통신 구현(HTTP Communication Implement, 80%)
-  * Backend 구현(Backend Implement, 80%)
-  * Frontend 구현(Frontend Implement, 50%)
+  * 데이터베이스 설계
+  * HTTP 통신 구현
+  * Backend 구현
+  * Frontend 구현
 * **방현우**
   * **원광대학교 컴퓨터소프트웨어공학과(Wonkwang Univ, Dept Computer Software Engineering)**
-  * HTTP 통신 구현(HTTP Communication Implement, 20%)
-  * Frontend 구현(Frontend Implement, 50%)
-  * Backend 구현(Backend Implement, 20%)
+  * HTTP 통신 구현
+  * Frontend 구현
+  * Backend 구현
 
 ---
 
