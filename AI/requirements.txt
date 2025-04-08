@@ -1,0 +1,7 @@
+watchdog
+torch
+numpy
+matplotlib
+Pillow
+opencv-python
+torchvision
