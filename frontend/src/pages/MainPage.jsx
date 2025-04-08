@@ -35,7 +35,7 @@ export default (props) => {
       });
       axios({
           method:"POST",
-          url: 'http://61.245.248.172:8080/api/file/list',
+          url: 'http://localhost:8080/api/file/list',
           data:sendData,
           headers: {'Content-type': 'application/json'}
       }).then((res)=>{
@@ -52,7 +52,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url:"http://61.245.248.172:8080/api/auth/getscale",
+            url:"http://localhost:8080/api/auth/getscale",
             data:sendData,
             headers:{"Content-type":"application/json"}
         }).then((res)=>{
@@ -72,7 +72,7 @@ export default (props) => {
         });
         axios({
             method:"POST",
-            url:"http://61.245.248.172:8080/api/auth/scale",
+            url:"http://localhost:8080/api/auth/scale",
             data:sendData,
             headers:{"Content-type":"application/json"}
         }).then((_)=>{
@@ -103,7 +103,7 @@ export default (props) => {
     <canvas ref={downloadCanvas} style={{display: "none"}}/>
     <NavigationBar session={props.session} setSession={props.setSession} setImageData={refreshImageData} setDistanceModal={openDistanceModal}/>
     <Container className="mw-100 d-flex mt-5 justify-content-center align-items-center" style={{height:"78.5vh"}}>
-      <ImageViewer img={select < 0 ? "" : "http://61.245.248.172:8080/api/files/"+props.session+"/"+imageData[select]["systemPath"]} setSession={props.setSession} session={props.session} selected={select} data={imageData} pixelDistance={pixelDistance}/>
+      <ImageViewer img={select < 0 ? "" : "http://localhost:8080/api/files/"+props.session+"/"+imageData[select]["systemPath"]} setSession={props.setSession} session={props.session} selected={select} data={imageData} pixelDistance={pixelDistance}/>
       <Menu downloadCanvas={downloadCanvas} setImageData={refreshImageData} data={imageData} setImage={selectImageUrl} selected={select} session={props.session} pixelDistance={pixelDistance}/>
     </Container>
     <Modal show={distanceModal} onHide={()=>setDistanceModal(false)}>
