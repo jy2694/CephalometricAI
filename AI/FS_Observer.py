@@ -41,7 +41,8 @@ class Handler(FileSystemEventHandler, Model):
         print(event)
         format_index = event.src_path.rfind('.')
         extension = event.src_path[format_index + 1:]
-        if extension == 'png' or extension == 'jpg':
+        supported_extensions = ['png', 'jpg', 'jpeg']
+        if extension in supported_extensions:
             super().predict(event.src_path)
             super().write_json(event.src_path[:format_index + 1])
         else:
