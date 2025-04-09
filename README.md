@@ -1,4 +1,5 @@
-## 두부계측분석 인공지능 웹서비스
+# 두부계측분석 인공지능 웹서비스
+
 ## Cephalometric Analysis AI Web Service
 
 ---
@@ -14,13 +15,17 @@ This service automates the analysis of dental and skeletal relationships and ena
 Increase convenience.
 
 ---
+
 ## 시스템 구성도
+
 ### System Configuration
 
 ![SystemConfiguration](https://github.com/jy2694/CephalometricAI/blob/main/System.png?raw=true)
 
 ---
+
 ## 개발자
+
 ### Developers
 
 * **최승완(PM)**
@@ -68,11 +73,8 @@ Increase convenience.
 
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.2-7952B3?logo=bootstrap)
 
-
 ### 3. Artificial Intelligence
 
 ![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python)
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-EE4C2C?logo=pytorch)
-
-
