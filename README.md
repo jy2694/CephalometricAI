@@ -1,4 +1,5 @@
-## 두부계측분석 인공지능 웹서비스
+# 두부계측분석 인공지능 웹서비스
+
 ## Cephalometric Analysis AI Web Service
 
 ---
@@ -14,13 +15,17 @@ This service automates the analysis of dental and skeletal relationships and ena
 Increase convenience.
 
 ---
+
 ## 시스템 구성도
+
 ### System Configuration
 
 ![SystemConfiguration](https://github.com/jy2694/CephalometricAI/blob/main/System.png?raw=true)
 
 ---
+
 ## 개발자
+
 ### Developers
 
 * **최승완(PM)**
@@ -68,11 +73,46 @@ Increase convenience.
 
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.2-7952B3?logo=bootstrap)
 
-
 ### 3. Artificial Intelligence
 
 ![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python)
 
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-EE4C2C?logo=pytorch)
 
+---
 
+## Installation
+
+Clone this repository.
+
+### AI
+
+1. Change directory to `AI`
+2. Install [miniconda](https://www.anaconda.com/docs/getting-started/miniconda/main)
+3. `conda install python=3.11`
+4. `conda create -n myenv python=3.11`
+5. `conda activate myenv`
+6. `pip install -r requirements.txt`
+
+### BackEnd
+
+1. Change directory to `BackEnd`
+2. Download [Eclipse](https://www.eclipse.org/downloads/)
+3. In installer, choose `Eclipse IDE for Java Developers`
+4. Open terminal, `where java`
+5. Set `JAVA_HOME` as environment variable to one level up from `bin`. Close terminal.
+6. Download [MariaDB](https://mariadb.org/)
+7. In installer, change root password to `1234`
+8. Open terminal as Administrator, run MariaDB service `net start MariaDB`
+9. Open terminal in the path in which you installed MariaDB
+10. `mysql -u root -p1234`
+11. `CREATE DATABASE cephalometricai;`
+12. `SHOW DATABASES;` this should list `cephalometricai`
+13. `gradlew bootRun`
+
+### frontend
+
+1. Change directory to `frontend`
+2. Install [Node.js v18](https://nodejs.org/en/download)
+3. `npm install`
+4. `npm run start`

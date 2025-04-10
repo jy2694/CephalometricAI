@@ -634,7 +634,7 @@ export default (props) => {
         });
         axios({
             method: "POST",
-            url: 'http://61.245.248.172:8080/api/file/points',
+            url: 'http://localhost:8080/api/file/points',
             data: sendData,
             headers: {'Content-type': 'application/json'}
         }).then((res) => {
@@ -691,7 +691,7 @@ export default (props) => {
         });
         axios({
             method: "POST",
-            url: 'http://61.245.248.172:8080/api/file/pointedit',
+            url: 'http://localhost:8080/api/file/pointedit',
             data: sendData,
             headers: {'Content-type': 'application/json'}
         })

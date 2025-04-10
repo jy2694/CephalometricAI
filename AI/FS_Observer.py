@@ -40,9 +40,13 @@ class Handler(FileSystemEventHandler, Model):
     def on_created(self, event):
         print(event)
         format_index = event.src_path.rfind('.')
-        if event.src_path[format_index + 1:] == 'png':
+        extension = event.src_path[format_index + 1:]
+        supported_extensions = ['png', 'jpg', 'jpeg']
+        if extension in supported_extensions:
             super().predict(event.src_path)
             super().write_json(event.src_path[:format_index + 1])
+        else:
+            print(f'Extension {extension} not supported.')
 
     def on_deleted(self, event):
         pass

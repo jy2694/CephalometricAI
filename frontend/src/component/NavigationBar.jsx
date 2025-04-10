@@ -25,7 +25,7 @@ export default (props) => {
     
     axios({
         method:"POST",
-        url: 'http://61.245.248.172:8080/api/auth/logout',
+        url: 'http://localhost:8080/api/auth/logout',
         data:sendData,
         headers: {'Content-type': 'application/json'}
     }).then((res)=>{
@@ -41,7 +41,7 @@ export default (props) => {
     });
     formData.append('sessionDTO',props.session);
     setFileList([]);
-    axios.post('http://61.245.248.172:8080/api/file/upload', formData)
+    axios.post('http://localhost:8080/api/file/upload', formData)
     .then((res)=> {
       props.setImageData(res.data);
       setShow(false);
